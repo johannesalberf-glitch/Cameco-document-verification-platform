@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 20, 23, 26;
+  --background-rgb: 251, 251, 249;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background-color: rgb(var(--background-rgb));
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Approval Success Animations */
+@keyframes checkmarkStroke {
+  0% {
+    stroke-dashoffset: 48;
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+@keyframes circlePop {
+  0% {
+    transform: scale(0.65);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes panelReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes itemFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mapleParticle {
+  0% {
+    transform: translate(0, 0) scale(0.4) rotate(0deg);
+    opacity: 0.9;
+  }
+  60% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(var(--tw-particle-x, 25px), var(--tw-particle-y, -35px)) scale(0.9) rotate(var(--tw-particle-rot, 35deg));
+    opacity: 0;
+  }
+}
+
+.anim-panel-reveal {
+  animation: panelReveal 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.anim-circle-pop {
+  animation: circlePop 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.anim-checkmark-stroke {
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: checkmarkStroke 0.5s cubic-bezier(0.65, 0, 0.45, 1) 0.2s forwards;
+}
+
+.anim-fade-up-1 {
+  animation: itemFadeUp 0.4s ease-out 0.25s forwards;
+  opacity: 0;
+}
+
+.anim-fade-up-2 {
+  animation: itemFadeUp 0.4s ease-out 0.4s forwards;
+  opacity: 0;
+}
+
+.anim-fade-up-3 {
+  animation: itemFadeUp 0.4s ease-out 0.55s forwards;
+  opacity: 0;
+}
+
+.anim-maple-particle {
+  animation: mapleParticle 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-panel-reveal,
+  .anim-circle-pop,
+  .anim-checkmark-stroke,
+  .anim-fade-up-1,
+  .anim-fade-up-2,
+  .anim-fade-up-3,
+  .anim-maple-particle {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}
+
+@media print {
+  header, footer, button, nav, .no-print {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+
