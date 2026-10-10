@@ -43,6 +43,25 @@ interface RegistryStats {
   lastAuditTime: string | null;
 }
 
+const CACHE_KEY = "cameco_admin_records_cache_v1";
+
+function getLocalRecords(): ApplicantRecord[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function setLocalRecords(recs: ApplicantRecord[]) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(recs));
+  } catch {}
+}
+
 export default function AdminDashboardPage() {
   const router = useRouter();
   const [records, setRecords] = useState<ApplicantRecord[]>([]);
@@ -96,10 +115,35 @@ export default function AdminDashboardPage() {
     if (search.trim()) params.set('search', search.trim());
     params.set('limit', '100');
 
-    const res = await fetch(`/api/records?${params.toString()}`);
-    const data = await res.json();
-    if (data.success) {
-      setRecords(data.data);
+    try {
+      const res = await fetch(`/api/records?${params.toString()}`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.data)) {
+        const local = getLocalRecords();
+        const map = new Map<string, ApplicantRecord>();
+        for (const r of data.data) map.set(r.id, r);
+        for (const r of local) {
+          if (!map.has(r.id)) {
+            map.set(r.id, r);
+            fetch("/api/records", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(r),
+            }).catch(() => {});
+          }
+        }
+        const merged = Array.from(map.values());
+        setRecords(merged);
+        setLocalRecords(merged);
+        return;
+      }
+    } catch (err) {
+      console.warn("Server fetch warning, loading from local cache:", err);
+    }
+
+    const local = getLocalRecords();
+    if (local.length > 0) {
+      setRecords(local);
     }
   }
 
@@ -152,6 +196,11 @@ export default function AdminDashboardPage() {
     try {
       const res = await fetch(`/api/records/${id}`, { method: 'DELETE' });
       if (res.ok) {
+        setRecords((prev) => {
+          const updated = prev.filter((item) => item.id !== id);
+          setLocalRecords(updated);
+          return updated;
+        });
         await Promise.all([loadRecords(), loadAuditLogs(), loadStats()]);
         setSelectedIds((prev) => prev.filter((item) => item !== id));
       }
@@ -166,7 +215,11 @@ export default function AdminDashboardPage() {
   }
 
   function handleSaveSuccess(updated: ApplicantRecord) {
-    setRecords((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+    setRecords((prev) => {
+      const list = prev.map((r) => (r.id === updated.id ? updated : r));
+      setLocalRecords(list);
+      return list;
+    });
     loadAuditLogs();
     loadStats();
   }
@@ -612,7 +665,11 @@ export default function AdminDashboardPage() {
           isOpen={isAddOpen}
           onClose={() => setIsAddOpen(false)}
           onAddSuccess={(newRecord) => {
-            setRecords((prev) => [newRecord, ...prev]);
+            setRecords((prev) => {
+              const updated = [newRecord, ...prev.filter((r) => r.id !== newRecord.id)];
+              setLocalRecords(updated);
+              return updated;
+            });
             loadAuditLogs();
             loadStats();
           }}

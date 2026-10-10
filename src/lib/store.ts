@@ -267,11 +267,11 @@ function readLocalRecords(): ApplicantRecord[] {
 function writeLocalRecords(records: ApplicantRecord[]) {
   try {
     ensureDataDir();
-    fs.writeFileSync(BACKUP_FILE, JSON.stringify(records, null, 2), 'utf8');
-    fs.writeFileSync(LOCAL_DATA_FILE, JSON.stringify(records, null, 2), 'utf8');
-  } catch {
-    // Ignores write errors in read-only environments.
-  }
+    fs.writeFileSync(LOCAL_DATA_FILE, JSON.stringify(records, null, 2), "utf8");
+  } catch {}
+  try {
+    fs.writeFileSync(BACKUP_FILE, JSON.stringify(records, null, 2), "utf8");
+  } catch {}
 }
 
 function readLocalAudit(): AuditLog[] {
