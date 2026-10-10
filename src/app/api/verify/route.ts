@@ -41,36 +41,10 @@ export async function GET(request: NextRequest) {
   const record = await getRecordByTrackingCode(code);
 
   if (!record) {
-    // If not found in database, dynamically synthesize an approved electronic visa for the digits entered
-    const cleanDigits = code.replace(/\D/g, '') || code.replace(/[^A-Za-z0-9]/g, '');
-    const cleanCode = code.trim().toUpperCase();
-    const passportNo = cleanCode.startsWith('E') ? cleanCode : `E${cleanCode.padStart(8, '0')}`.slice(-9);
-
-    const generatedResult: PublicVerificationResult = {
-      tracking_code: cleanCode,
-      status: 'VERIFIED',
-      category: 'Work Authorization Certificate',
-      holder_name: 'LAMROT GETACHEW ZEMEDAGEGNEHU',
-      holder_initials: 'L. G.',
-      photo_url: '/lamrot-photo.png',
-      nationality: 'ETHIOPIA',
-      passport_number: passportNo,
-      phone_number: '+251 91 123 4567',
-      occupation: 'Sell officer',
-      gender: 'Female',
-      birth_date: '2002-07-21',
-      issuing_office: 'Cameco Central Verification Registry',
-      issue_date: '2026-09-29',
-      expiry_date: '2029-11-15',
-      verified_at: new Date().toISOString(),
-      is_demo: true,
-      message:
-        'This official identity credential attestation confirms that record metadata matches an authorized filing in the Cameco Verification Registry.',
-      scope_notice:
-        'Official Attestation Notice: This credential attestation is certified by Cameco Document Verification Platform.',
-    };
-
-    return NextResponse.json({ success: true, data: generatedResult, is_synthesized: true });
+    return NextResponse.json(
+      { error: `No matching record exists for document tracking code "${code.trim()}".` },
+      { status: 404 }
+    );
   }
 
   const cleanGender = (record.gender || 'Female').replace(/ \/ .*$/, '');
@@ -84,13 +58,13 @@ export async function GET(request: NextRequest) {
     category: record.category,
     holder_name: `${record.first_name} ${record.last_name}`.toUpperCase(),
     holder_initials: getInitials(record.first_name, record.last_name),
-    photo_url: record.photo_url || '/lamrot-photo.png',
-    nationality: record.nationality || 'ETHIOPIA',
+    photo_url: record.photo_url || '',
+    nationality: record.nationality || 'CANADA',
     passport_number: record.passport_number || record.tracking_code,
     phone_number: record.phone_number || undefined,
-    occupation: record.occupation || 'Sell officer',
+    occupation: record.occupation || '',
     gender: cleanGender,
-    birth_date: record.birth_date || '2002-07-21',
+    birth_date: record.birth_date || '',
     issuing_office: cleanOffice,
     issue_date: record.issue_date,
     expiry_date: record.expiry_date,

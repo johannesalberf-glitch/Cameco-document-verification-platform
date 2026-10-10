@@ -213,7 +213,7 @@ export function EditUserModal({ record, isOpen, onClose, onSaveSuccess }: EditUs
                 onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                 required
                 className="w-full px-3 py-2 border border-stone-300 rounded text-xs focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
-                placeholder="e.g. LAMROT GETACHEW"
+                placeholder="e.g. JOHN"
               />
             </div>
 
@@ -405,7 +405,7 @@ export function EditUserModal({ record, isOpen, onClose, onSaveSuccess }: EditUs
                   type="text"
                   value={formData.photo_url || ''}
                   onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })}
-                  placeholder="Photo image URL or /lamrot-photo.png"
+                  placeholder="Photo image URL (optional)"
                   className="w-full px-3 py-1.5 border border-stone-300 rounded text-xs"
                 />
 

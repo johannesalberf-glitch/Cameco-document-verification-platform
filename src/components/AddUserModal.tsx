@@ -20,18 +20,18 @@ export function AddUserModal({ isOpen, onClose, onAddSuccess }: AddUserModalProp
     last_name: '',
     phone_number: '',
     passport_number: '',
-    nationality: 'ETHIOPIA',
-    occupation: 'Sell officer',
-    gender: 'Female',
-    birth_date: '2002-07-21',
+    nationality: 'CANADA',
+    occupation: '',
+    gender: 'Male',
+    birth_date: '',
     category: 'Work Authorization Certificate' as RecordCategory,
     status: 'VERIFIED' as RecordStatus,
     issue_date: new Date().toISOString().split('T')[0],
     expiry_date: new Date(Date.now() + 3 * 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     issuing_office: 'Cameco Central Verification Registry',
-    photo_url: '/lamrot-photo.png',
-    published_demo: true,
-    notes: 'Official Cameco Identity Record verified and active under registry registration.',
+    photo_url: '',
+    published_demo: false,
+    notes: '',
   });
 
   const [loading, setLoading] = useState(false);
@@ -55,27 +55,6 @@ export function AddUserModal({ isOpen, onClose, onAddSuccess }: AddUserModalProp
     'REVOKED',
   ];
 
-  function handleFillCamecoSample() {
-    setFormData({
-      tracking_code: 'E00629187',
-      first_name: 'LAMROT GETACHEW',
-      last_name: 'ZEMEDAGEGNEHU',
-      phone_number: '+251 91 123 4567',
-      passport_number: 'E00629187',
-      nationality: 'ETHIOPIA',
-      occupation: 'Sell officer',
-      gender: 'Female',
-      birth_date: '2002-07-21',
-      category: 'Work Authorization Certificate',
-      status: 'VERIFIED',
-      issue_date: '2026-09-29',
-      expiry_date: '2029-11-15',
-      issuing_office: 'Cameco Central Verification Registry',
-      photo_url: '/lamrot-photo.png',
-      published_demo: true,
-      notes: 'Official Cameco Identity Record verified and active under registry registration.',
-    });
-  }
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -163,25 +142,7 @@ export function AddUserModal({ isOpen, onClose, onAddSuccess }: AddUserModalProp
             </div>
           </div>
           
-          <div className="flex items-center space-x-2">
-            <button
-              type="button"
-              onClick={handleFillCamecoSample}
-              className="px-2.5 py-1 text-[11px] font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded flex items-center space-x-1"
-              title="Autofill fields with sample from Cameco registry"
-            >
-              <Sparkles className="w-3 h-3 text-emerald-600" />
-              <span>Fill Cameco Sample</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={onClose}
-              className="text-stone-400 hover:text-stone-700 p-1 rounded transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+          
         </div>
 
         {error && (
@@ -241,7 +202,7 @@ export function AddUserModal({ isOpen, onClose, onAddSuccess }: AddUserModalProp
                 onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                 required
                 className="w-full px-3 py-2 border border-stone-300 rounded text-xs focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
-                placeholder="e.g. LAMROT GETACHEW"
+                placeholder="e.g. JOHN"
               />
             </div>
 
@@ -432,7 +393,7 @@ export function AddUserModal({ isOpen, onClose, onAddSuccess }: AddUserModalProp
                   type="text"
                   value={formData.photo_url}
                   onChange={(e) => setFormData({ ...formData, photo_url: e.target.value })}
-                  placeholder="Photo image URL or /lamrot-photo.png"
+                  placeholder="Photo image URL (optional)"
                   className="w-full px-3 py-1.5 border border-stone-300 rounded text-xs"
                 />
 

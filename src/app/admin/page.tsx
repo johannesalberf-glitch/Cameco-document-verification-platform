@@ -43,7 +43,7 @@ interface RegistryStats {
   lastAuditTime: string | null;
 }
 
-const CACHE_KEY = "cameco_admin_records_cache_v1";
+const CACHE_KEY = "cameco_admin_records_v3";
 
 function getLocalRecords(): ApplicantRecord[] {
   if (typeof window === "undefined") return [];
@@ -281,26 +281,7 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center space-x-1.5 border-r border-cameco-rule pr-2 mr-1">
-              <a
-                href="/api/export?format=csv"
-                download="cameco_registry_export.csv"
-                className="px-2.5 py-1.5 border border-stone-300 hover:bg-stone-50 text-stone-700 rounded-sm text-xs font-medium flex items-center space-x-1 transition-colors"
-                title="Export complete database to CSV"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Export CSV</span>
-              </a>
-              <a
-                href="/api/export?format=json"
-                download="cameco_registry_export.json"
-                className="px-2.5 py-1.5 border border-stone-300 hover:bg-stone-50 text-stone-700 rounded-sm text-xs font-medium flex items-center space-x-1 transition-colors"
-                title="Export complete database to JSON"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Export JSON</span>
-              </a>
-            </div>
+
 
             <button
               type="button"

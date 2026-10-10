@@ -107,7 +107,7 @@ export function VerificationSection() {
             category: localMatch.category,
             holder_name: `${localMatch.first_name} ${localMatch.last_name}`.trim(),
             holder_initials: localMatch.first_name ? localMatch.first_name[0] + "." : "A.",
-            photo_url: localMatch.photo_url || "/lamrot-photo.png",
+            photo_url: localMatch.photo_url || "",
             nationality: localMatch.nationality || "UNKNOWN",
             passport_number: localMatch.passport_number || localMatch.tracking_code,
             phone_number: localMatch.phone_number,
