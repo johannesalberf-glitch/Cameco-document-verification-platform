@@ -25,8 +25,71 @@ import {
 import { CanadaFlag } from './CanadaFlag';
 import { MapleLeafIcon } from './MapleLeafIcon';
 import { CanadaIdCard } from './CanadaIdCard';
-import { PublicVerificationResult, RecordStatus } from '@/lib/types';
+import { PublicVerificationResult, RecordStatus, ApplicantRecord } from '@/lib/types';
 import { formatDate } from '@/lib/utils';
+
+const DEFAULT_APPROVED_USERS: ApplicantRecord[] = [
+  {
+    id: 'rec_101',
+    tracking_code: 'CAM-2026-8812',
+    first_name: 'Sarah',
+    last_name: 'Jenkins',
+    category: 'Temporary Resident Visa',
+    status: 'VERIFIED',
+    issue_date: '2026-03-15',
+    expiry_date: '2028-03-15',
+    photo_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&auto=format&fit=crop&q=80',
+    issuing_office: 'Ottawa Central Verification Registry',
+    published_demo: true,
+    nationality: 'UNITED KINGDOM',
+    passport_number: 'GB8821904',
+    occupation: 'Senior Geoscientist',
+    gender: 'Female',
+    birth_date: '1992-05-14',
+    created_at: '2026-03-15T09:30:00Z',
+    updated_at: '2026-03-15T09:30:00Z',
+  },
+  {
+    id: 'rec_102',
+    tracking_code: 'CAM-2026-4401',
+    first_name: 'David',
+    last_name: 'Chen',
+    category: 'Study Permit Accreditation',
+    status: 'VERIFIED',
+    issue_date: '2026-01-10',
+    expiry_date: '2027-08-31',
+    photo_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80',
+    issuing_office: 'Vancouver Regional Intake Unit',
+    published_demo: true,
+    nationality: 'SINGAPORE',
+    passport_number: 'E49102847',
+    occupation: 'Postgraduate Researcher',
+    gender: 'Male',
+    birth_date: '1998-11-20',
+    created_at: '2026-01-10T14:15:00Z',
+    updated_at: '2026-01-10T14:15:00Z',
+  },
+  {
+    id: 'rec_106',
+    tracking_code: 'CAM-2026-5529',
+    first_name: 'Mateo',
+    last_name: 'Silva',
+    category: 'Provincial Nominee Verification',
+    status: 'VERIFIED',
+    issue_date: '2026-04-18',
+    expiry_date: '2028-04-18',
+    photo_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=500&auto=format&fit=crop&q=80',
+    issuing_office: 'Halifax Atlantic Pilot Bureau',
+    published_demo: true,
+    nationality: 'BRAZIL',
+    passport_number: 'BR4820193',
+    occupation: 'Software Systems Architect',
+    gender: 'Male',
+    birth_date: '1991-07-19',
+    created_at: '2026-04-18T15:00:00Z',
+    updated_at: '2026-04-18T15:00:00Z',
+  },
+];
 
 interface Particle {
   id: number;
@@ -49,6 +112,7 @@ export function VerificationSection() {
   const [particles, setParticles] = useState<Particle[]>([]);
   const [isAnimationSettled, setIsAnimationSettled] = useState(false);
   const [showIdCard, setShowIdCard] = useState(true);
+  const [approvedUsers, setApprovedUsers] = useState<ApplicantRecord[]>(DEFAULT_APPROVED_USERS);
 
   const sampleCodes = [
     { code: 'CAM-2026-8812', label: 'Approved (TRV)' },
@@ -66,6 +130,18 @@ export function VerificationSection() {
         executeVerification(urlCode);
       }
     }
+
+    // Dynamically fetch any newly created approved records
+    fetch('/api/gallery?status=VERIFIED&limit=6')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          setApprovedUsers(data.data);
+        }
+      })
+      .catch(() => {
+        // Fallback to default approved users
+      });
   }, []);
 
   function generateParticles(): Particle[] {
@@ -191,21 +267,112 @@ export function VerificationSection() {
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-1.5 pt-1 text-xs">
-                <span className="text-stone-500 text-[11px] mr-1">Sample records:</span>
-                {sampleCodes.map((s) => (
-                  <button
-                    key={s.code}
-                    type="button"
-                    onClick={() => {
-                      setTrackingCode(s.code);
-                      executeVerification(s.code);
-                    }}
-                    className="px-2 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 font-mono text-[11px] rounded-sm border border-stone-200 transition-colors"
-                  >
-                    {s.code}
-                  </button>
-                ))}
+              {/* Approved Users Section directly below code inputer */}
+              <div className="pt-2 border-t border-stone-100 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-1.5">
+                    <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-cameco-charcoal">
+                      Approved Users
+                    </span>
+                  </div>
+                  <span className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded-xs text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                    <span>Instant Select & Verify</span>
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {approvedUsers.map((user) => {
+                    const isSelected = trackingCode.trim().toUpperCase() === user.tracking_code.toUpperCase();
+                    return (
+                      <button
+                        key={user.id}
+                        type="button"
+                        onClick={() => {
+                          setTrackingCode(user.tracking_code);
+                          executeVerification(user.tracking_code);
+                        }}
+                        className={`w-full text-left p-2.5 rounded-sm border transition-all duration-150 flex items-center space-x-3 group cursor-pointer ${
+                          isSelected
+                            ? 'bg-emerald-50/80 border-emerald-500 ring-1 ring-emerald-500 shadow-xs'
+                            : 'bg-stone-50/60 hover:bg-stone-100/90 border-stone-200 hover:border-stone-300'
+                        }`}
+                      >
+                        {/* User Image */}
+                        <div className="relative w-11 h-13 rounded-xs border border-stone-300 overflow-hidden bg-stone-200 flex-shrink-0 shadow-2xs">
+                          {user.photo_url ? (
+                            <img
+                              src={user.photo_url}
+                              alt={`${user.first_name} ${user.last_name}`}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-stone-400">
+                              <User className="w-5 h-5" />
+                            </div>
+                          )}
+                          <span className="absolute bottom-0 inset-x-0 bg-emerald-600 text-[8px] text-white text-center font-bold uppercase leading-tight py-0.5">
+                            APPROVED
+                          </span>
+                        </div>
+
+                        {/* User Details: Name, Status, Passport Number */}
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="text-xs font-bold text-cameco-charcoal truncate group-hover:text-cameco-red transition-colors">
+                              {user.first_name} {user.last_name}
+                            </span>
+                            
+                            {/* Status */}
+                            <span className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded-xs text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex-shrink-0">
+                              <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                              <span>Approved</span>
+                            </span>
+                          </div>
+
+                          {/* Passport Number & Tracking Code */}
+                          <div className="flex items-center justify-between text-[11px] text-stone-600">
+                            <div className="flex items-center space-x-1 font-mono">
+                              <CreditCard className="w-3 h-3 text-stone-400 flex-shrink-0" />
+                              <span>Passport: <strong className="text-stone-900">{user.passport_number || 'N/A'}</strong></span>
+                            </div>
+                            <span className="font-mono text-[10px] text-stone-500 bg-white px-1.5 py-0.5 rounded border border-stone-200">
+                              {user.tracking_code}
+                            </span>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Other Status Samples (Pending / Rejected) */}
+                <div className="pt-1 flex items-center justify-between text-[11px] text-stone-500">
+                  <span className="text-[10px]">Other test status samples:</span>
+                  <div className="flex items-center space-x-1.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTrackingCode('CAM-2026-1934');
+                        executeVerification('CAM-2026-1934');
+                      }}
+                      className="px-1.5 py-0.5 bg-stone-100 hover:bg-stone-200 text-stone-600 font-mono text-[10px] rounded border border-stone-200 transition-colors"
+                    >
+                      Pending (1934)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTrackingCode('CAM-2026-7731');
+                        executeVerification('CAM-2026-7731');
+                      }}
+                      className="px-1.5 py-0.5 bg-stone-100 hover:bg-stone-200 text-stone-600 font-mono text-[10px] rounded border border-stone-200 transition-colors"
+                    >
+                      Rejected (7731)
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <button

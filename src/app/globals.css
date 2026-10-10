@@ -138,3 +138,20 @@ body {
   }
 }
 
+
+/* UV-Reactive Ink Animations & Glow */
+@keyframes uvPulse {
+  0%, 100% {
+    opacity: 0.88;
+    filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.75)) drop-shadow(0 0 14px rgba(59, 130, 246, 0.5));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 12px rgba(192, 132, 252, 0.95)) drop-shadow(0 0 22px rgba(96, 165, 250, 0.7));
+  }
+}
+
+.uv-ink-active {
+  animation: uvPulse 3s ease-in-out infinite;
+}
+
