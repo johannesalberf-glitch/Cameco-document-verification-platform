@@ -26,6 +26,12 @@ export default function NewRecordPage() {
     tracking_code: generateTrackingCode(),
     first_name: '',
     last_name: '',
+    phone_number: '',
+    passport_number: '',
+    nationality: 'CANADA',
+    occupation: '',
+    gender: 'Female',
+    birth_date: '1995-01-01',
     category: 'Temporary Resident Visa' as RecordCategory,
     status: 'VERIFIED' as RecordStatus,
     issue_date: new Date().toISOString().split('T')[0],
@@ -193,6 +199,92 @@ export default function NewRecordPage() {
                   value={formData.last_name}
                   onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
                   placeholder="e.g. Tremblay"
+                  className="w-full px-3 py-2 border border-stone-300 rounded-sm text-sm focus:ring-1 focus:ring-cameco-red"
+                />
+              </div>
+
+              {/* Phone Number Field */}
+              <div className="space-y-1">
+                <label className="font-semibold uppercase tracking-wider text-cameco-charcoal flex items-center justify-between">
+                  <span>Phone Number</span>
+                  <span className="text-[10px] text-stone-400 font-normal">Contact Tel</span>
+                </label>
+                <input
+                  type="tel"
+                  value={formData.phone_number}
+                  onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
+                  placeholder="e.g. +1 (613) 555-0199"
+                  className="w-full px-3 py-2 border border-stone-300 rounded-sm text-sm focus:ring-1 focus:ring-cameco-red font-mono"
+                />
+              </div>
+
+              {/* Passport Number Field */}
+              <div className="space-y-1">
+                <label className="font-semibold uppercase tracking-wider text-cameco-charcoal">
+                  Passport Number
+                </label>
+                <input
+                  type="text"
+                  value={formData.passport_number}
+                  onChange={(e) => setFormData({ ...formData, passport_number: e.target.value.toUpperCase() })}
+                  placeholder="e.g. GB8821904 or E00629187"
+                  className="w-full px-3 py-2 border border-stone-300 rounded-sm text-sm focus:ring-1 focus:ring-cameco-red font-mono uppercase"
+                />
+              </div>
+
+              {/* Nationality Field */}
+              <div className="space-y-1">
+                <label className="font-semibold uppercase tracking-wider text-cameco-charcoal">
+                  Nationality / Country
+                </label>
+                <input
+                  type="text"
+                  value={formData.nationality}
+                  onChange={(e) => setFormData({ ...formData, nationality: e.target.value.toUpperCase() })}
+                  placeholder="e.g. CANADA, ETHIOPIA, UNITED KINGDOM"
+                  className="w-full px-3 py-2 border border-stone-300 rounded-sm text-sm focus:ring-1 focus:ring-cameco-red uppercase"
+                />
+              </div>
+
+              {/* Gender Field (Clean, No Arabic) */}
+              <div className="space-y-1">
+                <label className="font-semibold uppercase tracking-wider text-cameco-charcoal">
+                  Gender
+                </label>
+                <select
+                  value={formData.gender}
+                  onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                  className="w-full px-3 py-2 border border-stone-300 rounded-sm bg-white text-sm focus:ring-1 focus:ring-cameco-red"
+                >
+                  <option value="Female">Female</option>
+                  <option value="Male">Male</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              {/* Date of Birth */}
+              <div className="space-y-1">
+                <label className="font-semibold uppercase tracking-wider text-cameco-charcoal">
+                  Date of Birth
+                </label>
+                <input
+                  type="date"
+                  value={formData.birth_date}
+                  onChange={(e) => setFormData({ ...formData, birth_date: e.target.value })}
+                  className="w-full px-3 py-2 border border-stone-300 rounded-sm text-sm focus:ring-1 focus:ring-cameco-red"
+                />
+              </div>
+
+              {/* Occupation */}
+              <div className="space-y-1">
+                <label className="font-semibold uppercase tracking-wider text-cameco-charcoal">
+                  Occupation / Professional Role
+                </label>
+                <input
+                  type="text"
+                  value={formData.occupation}
+                  onChange={(e) => setFormData({ ...formData, occupation: e.target.value })}
+                  placeholder="e.g. Systems Engineer, Sell officer"
                   className="w-full px-3 py-2 border border-stone-300 rounded-sm text-sm focus:ring-1 focus:ring-cameco-red"
                 />
               </div>

@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CanadaFlag } from '@/components/CanadaFlag';
 import { EditUserModal } from '@/components/EditUserModal';
+import { AddUserModal } from '@/components/AddUserModal';
+import { PreviewCardModal } from '@/components/PreviewCardModal';
 import { ApplicantRecord, AuditLog, RecordStatus } from '@/lib/types';
 import { formatDate } from '@/lib/utils';
 import { 
@@ -26,7 +28,8 @@ import {
   CheckSquare,
   Square,
   Sparkles,
-  Users
+  Users,
+  CreditCard
 } from 'lucide-react';
 
 interface RegistryStats {
@@ -53,9 +56,12 @@ export default function AdminDashboardPage() {
   const [search, setSearch] = useState('');
   const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  // Edit user profile modal state
+  // Edit and Add user profile modal state
   const [editingRecord, setEditingRecord] = useState<ApplicantRecord | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [previewRecord, setPreviewRecord] = useState<ApplicantRecord | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   // Batch selection state
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -242,6 +248,15 @@ export default function AdminDashboardPage() {
                 <span>Export JSON</span>
               </a>
             </div>
+
+            <button
+              type="button"
+              onClick={() => setIsAddOpen(true)}
+              className="px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-sm text-xs font-semibold flex items-center space-x-1.5 shadow-subtle transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add New User / Filing</span>
+            </button>
 
             <Link
               href="/admin/new"
@@ -448,9 +463,14 @@ export default function AdminDashboardPage() {
                               <span className="font-semibold text-cameco-charcoal block">
                                 {r.first_name} {r.last_name}
                               </span>
-                              <span className="text-[10px] text-stone-500">
-                                {r.issuing_office}
-                              </span>
+                              <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-stone-500">
+                                <span>{r.passport_number || r.issuing_office}</span>
+                                {r.phone_number && (
+                                  <span className="font-mono text-emerald-700 font-semibold bg-emerald-50 px-1 rounded-xs border border-emerald-200">
+                                    {r.phone_number}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </td>
@@ -584,6 +604,29 @@ export default function AdminDashboardPage() {
             isOpen={isEditOpen}
             onClose={() => setIsEditOpen(false)}
             onSaveSuccess={handleSaveSuccess}
+          />
+        )}
+
+        {/* Add User Profile Modal */}
+        <AddUserModal
+          isOpen={isAddOpen}
+          onClose={() => setIsAddOpen(false)}
+          onAddSuccess={(newRecord) => {
+            setRecords((prev) => [newRecord, ...prev]);
+            loadAuditLogs();
+            loadStats();
+          }}
+        />
+
+        {/* Preview Official ID Card Modal */}
+        {previewRecord && (
+          <PreviewCardModal
+            record={previewRecord}
+            isOpen={isPreviewOpen}
+            onClose={() => {
+              setIsPreviewOpen(false);
+              setPreviewRecord(null);
+            }}
           />
         )}
 

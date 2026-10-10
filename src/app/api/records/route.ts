@@ -64,6 +64,12 @@ export async function POST(request: NextRequest) {
       photo_url,
       published_demo,
       notes,
+      nationality,
+      passport_number,
+      phone_number,
+      occupation,
+      gender,
+      birth_date,
     } = body;
 
     if (!first_name || !last_name || !category || !status || !issue_date || !expiry_date) {
@@ -73,7 +79,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const tracking_code = body.tracking_code || generateTrackingCode();
+    const tracking_code = (body.tracking_code?.trim()) || passport_number?.trim() || generateTrackingCode();
 
     const created = await createRecord(
       {
@@ -84,10 +90,16 @@ export async function POST(request: NextRequest) {
         status: status as RecordStatus,
         issue_date,
         expiry_date,
-        issuing_office: issuing_office?.trim() || 'Ottawa Central Verification Registry',
+        issuing_office: issuing_office?.trim() || 'Cameco Central Verification Registry',
         photo_url: photo_url || undefined,
         published_demo: Boolean(published_demo),
         notes: notes?.trim() || undefined,
+        nationality: nationality?.trim() || undefined,
+        passport_number: passport_number?.trim() || undefined,
+        phone_number: phone_number?.trim() || undefined,
+        occupation: occupation?.trim() || undefined,
+        gender: gender?.trim() ? gender.trim().replace(/ \/ .*$/, '') : undefined,
+        birth_date: birth_date?.trim() || undefined,
       },
       adminEmail
     );

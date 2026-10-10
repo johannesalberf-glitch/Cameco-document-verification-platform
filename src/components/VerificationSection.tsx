@@ -1,95 +1,24 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Search, 
   CheckCircle2, 
   AlertCircle, 
-  Clock, 
-  XCircle, 
-  ShieldAlert, 
-  Info, 
-  Calendar, 
-  Building2, 
-  UserCheck, 
-  ArrowRight, 
   RefreshCw, 
-  Printer, 
-  RotateCcw, 
-  FileSearch,
-  User,
-  CreditCard,
-  Globe,
-  Briefcase
+  ShieldCheck, 
+  Lock,
+  ArrowRight,
+  Clock,
+  XCircle,
+  X,
+  FileCheck2,
+  Info
 } from 'lucide-react';
 import { CanadaFlag } from './CanadaFlag';
 import { MapleLeafIcon } from './MapleLeafIcon';
-import { CanadaIdCard } from './CanadaIdCard';
-import { PublicVerificationResult, RecordStatus, ApplicantRecord } from '@/lib/types';
-import { formatDate } from '@/lib/utils';
-
-const DEFAULT_APPROVED_USERS: ApplicantRecord[] = [
-  {
-    id: 'rec_101',
-    tracking_code: 'CAM-2026-8812',
-    first_name: 'Sarah',
-    last_name: 'Jenkins',
-    category: 'Temporary Resident Visa',
-    status: 'VERIFIED',
-    issue_date: '2026-03-15',
-    expiry_date: '2028-03-15',
-    photo_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&auto=format&fit=crop&q=80',
-    issuing_office: 'Ottawa Central Verification Registry',
-    published_demo: true,
-    nationality: 'UNITED KINGDOM',
-    passport_number: 'GB8821904',
-    occupation: 'Senior Geoscientist',
-    gender: 'Female',
-    birth_date: '1992-05-14',
-    created_at: '2026-03-15T09:30:00Z',
-    updated_at: '2026-03-15T09:30:00Z',
-  },
-  {
-    id: 'rec_102',
-    tracking_code: 'CAM-2026-4401',
-    first_name: 'David',
-    last_name: 'Chen',
-    category: 'Study Permit Accreditation',
-    status: 'VERIFIED',
-    issue_date: '2026-01-10',
-    expiry_date: '2027-08-31',
-    photo_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80',
-    issuing_office: 'Vancouver Regional Intake Unit',
-    published_demo: true,
-    nationality: 'SINGAPORE',
-    passport_number: 'E49102847',
-    occupation: 'Postgraduate Researcher',
-    gender: 'Male',
-    birth_date: '1998-11-20',
-    created_at: '2026-01-10T14:15:00Z',
-    updated_at: '2026-01-10T14:15:00Z',
-  },
-  {
-    id: 'rec_106',
-    tracking_code: 'CAM-2026-5529',
-    first_name: 'Mateo',
-    last_name: 'Silva',
-    category: 'Provincial Nominee Verification',
-    status: 'VERIFIED',
-    issue_date: '2026-04-18',
-    expiry_date: '2028-04-18',
-    photo_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=500&auto=format&fit=crop&q=80',
-    issuing_office: 'Halifax Atlantic Pilot Bureau',
-    published_demo: true,
-    nationality: 'BRAZIL',
-    passport_number: 'BR4820193',
-    occupation: 'Software Systems Architect',
-    gender: 'Male',
-    birth_date: '1991-07-19',
-    created_at: '2026-04-18T15:00:00Z',
-    updated_at: '2026-04-18T15:00:00Z',
-  },
-];
+import { CamecoIdCard } from './CamecoIdCard';
+import { PublicVerificationResult } from '@/lib/types';
 
 interface Particle {
   id: number;
@@ -111,16 +40,9 @@ export function VerificationSection() {
   const [animKey, setAnimKey] = useState(0);
   const [particles, setParticles] = useState<Particle[]>([]);
   const [isAnimationSettled, setIsAnimationSettled] = useState(false);
-  const [showIdCard, setShowIdCard] = useState(true);
-  const [approvedUsers, setApprovedUsers] = useState<ApplicantRecord[]>(DEFAULT_APPROVED_USERS);
+  const resultRef = useRef<HTMLDivElement>(null);
 
-  const sampleCodes = [
-    { code: 'CAM-2026-8812', label: 'Approved (TRV)' },
-    { code: 'CAM-2026-4401', label: 'Approved (Study)' },
-    { code: 'CAM-2026-1934', label: 'Pending Review' },
-    { code: 'CAM-2026-7731', label: 'Not Approved' },
-  ];
-
+  // Check URL query parameters on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -130,28 +52,16 @@ export function VerificationSection() {
         executeVerification(urlCode);
       }
     }
-
-    // Dynamically fetch any newly created approved records
-    fetch('/api/gallery?status=VERIFIED&limit=6')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-          setApprovedUsers(data.data);
-        }
-      })
-      .catch(() => {
-        // Fallback to default approved users
-      });
   }, []);
 
   function generateParticles(): Particle[] {
     return [
-      { id: 1, x: -36, y: -42, rot: -25, color: '#C41230', size: 14, delay: 0.1 },
-      { id: 2, x: 38, y: -45, rot: 30, color: '#FFFFFF', size: 12, delay: 0.15 },
-      { id: 3, x: -48, y: -10, rot: -45, color: '#C41230', size: 13, delay: 0.2 },
-      { id: 4, x: 46, y: -12, rot: 40, color: '#C41230', size: 15, delay: 0.18 },
-      { id: 5, x: -25, y: -55, rot: -15, color: '#FFFFFF', size: 11, delay: 0.25 },
-      { id: 6, x: 26, y: -58, rot: 20, color: '#C41230', size: 13, delay: 0.22 },
+      { id: 1, x: -32, y: -36, rot: -20, color: '#C41230', size: 14, delay: 0.1 },
+      { id: 2, x: 34, y: -38, rot: 25, color: '#FFFFFF', size: 12, delay: 0.15 },
+      { id: 3, x: -42, y: -10, rot: -35, color: '#C41230', size: 13, delay: 0.2 },
+      { id: 4, x: 40, y: -12, rot: 30, color: '#C41230', size: 14, delay: 0.18 },
+      { id: 5, x: -22, y: -48, rot: -12, color: '#FFFFFF', size: 11, delay: 0.25 },
+      { id: 6, x: 24, y: -50, rot: 18, color: '#C41230', size: 12, delay: 0.22 },
     ];
   }
 
@@ -159,7 +69,8 @@ export function VerificationSection() {
     const cleanCode = codeToSearch.trim();
     if (!cleanCode) {
       setErrorType('validation');
-      setErrorMessage('Please provide a valid document tracking code.');
+      setErrorMessage('Please enter a valid Cameco tracking code.');
+      setResult(null);
       return;
     }
 
@@ -177,30 +88,36 @@ export function VerificationSection() {
         if (res.status === 404) {
           setErrorType('notFound');
           setErrorMessage(
-            payload.error || 'No document record was located for this tracking code in the Cameco registry.'
+            payload.error || `No matching record exists for tracking code "${cleanCode}".`
           );
         } else if (res.status === 400) {
           setErrorType('validation');
-          setErrorMessage(payload.error || 'Invalid tracking code syntax. Expected format: CAM-XXXX-XXXX.');
+          setErrorMessage(payload.error || 'Invalid code syntax. Expected alphanumeric sequence.');
         } else {
           setErrorType('network');
-          setErrorMessage(payload.error || 'The registry service returned an operational error.');
+          setErrorMessage(payload.error || 'Service connectivity interruption. Please try again.');
         }
       } else {
         const record = payload.data as PublicVerificationResult;
         setResult(record);
         setAnimKey((prev) => prev + 1);
 
+        // Trigger tasteful flourish animation only for verified records (max 1.5s)
         if (record.status === 'VERIFIED') {
           setParticles(generateParticles());
           setTimeout(() => {
             setIsAnimationSettled(true);
-          }, 1600);
+          }, 1500);
         }
+
+        // Smooth scroll to result
+        setTimeout(() => {
+          resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 120);
       }
     } catch {
       setErrorType('network');
-      setErrorMessage('Unable to reach the Cameco verification network. Please check connectivity and re-attempt.');
+      setErrorMessage('Unable to connect to the Cameco verification registry. Please check your network.');
     } finally {
       setLoading(false);
     }
@@ -211,639 +128,311 @@ export function VerificationSection() {
     executeVerification(trackingCode);
   }
 
-  function handleReplay() {
-    if (result && result.status === 'VERIFIED') {
-      setAnimKey((prev) => prev + 1);
-      setIsAnimationSettled(false);
-      setParticles(generateParticles());
-      setTimeout(() => {
-        setIsAnimationSettled(true);
-      }, 1600);
-    }
+  function handleReset() {
+    setTrackingCode('');
+    setResult(null);
+    setErrorType(null);
+    setErrorMessage(null);
   }
 
   return (
-    <section className="py-12 lg:py-16 bg-cameco-canvas" aria-labelledby="verify-heading">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          
-          {/* Left Column: Form & Explanations */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="inline-flex items-center space-x-2 px-2.5 py-1 rounded-sm bg-cameco-red-surface border border-cameco-red-border text-cameco-red text-xs font-medium">
-              <CanadaFlag className="h-3.5 w-7" />
-              <span>Federal & Provincial Record Reference</span>
+    <section className="bg-[#fbfbf9] border-b border-stone-200 py-10 sm:py-14 lg:py-16" aria-labelledby="verify-heading">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        
+        {/* Compact, Well-Composed Introduction */}
+        <div className="space-y-2 text-left">
+          <div className="inline-flex items-center space-x-2 text-xs font-semibold uppercase tracking-wider text-cameco-red">
+            <span className="w-1.5 h-1.5 rounded-full bg-cameco-red" />
+            <span>Document Verification</span>
+          </div>
+
+          <h1 id="verify-heading" className="text-2xl sm:text-3xl font-bold tracking-tight text-[#0b1f3a] font-sans">
+            Verify a Document
+          </h1>
+
+          <p className="text-sm text-stone-600 leading-relaxed max-w-2xl">
+            Enter your Cameco tracking code to retrieve the corresponding registered record.
+          </p>
+        </div>
+
+        {/* Tracking-Code Verification Form */}
+        <div className="bg-white border border-stone-200 rounded-md shadow-subtle p-5 sm:p-6 space-y-4">
+          <form onSubmit={handleFormSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="trackingCodeInput" className="block text-xs font-bold uppercase tracking-wider text-[#0b1f3a] mb-1.5">
+                Tracking Code
+              </label>
+              
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
+                  <Search className="w-4 h-4" />
+                </div>
+                
+                <input
+                  id="trackingCodeInput"
+                  type="text"
+                  value={trackingCode}
+                  onChange={(e) => setTrackingCode(e.target.value.toUpperCase())}
+                  placeholder="e.g. E00629187 or CAM-2026-8812"
+                  className="w-full pl-10 pr-10 py-2.5 text-sm font-mono font-semibold uppercase border border-stone-300 rounded-sm bg-white placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-[#003865] focus:border-[#003865] transition-shadow text-[#0b1f3a]"
+                  aria-describedby="privacy-note"
+                  disabled={loading}
+                />
+
+                {trackingCode && !loading && (
+                  <button
+                    type="button"
+                    onClick={() => setTrackingCode('')}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-stone-400 hover:text-stone-600"
+                    title="Clear input"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
             </div>
 
-            <div className="space-y-3">
-              <h1 id="verify-heading" className="text-3xl sm:text-4xl font-bold tracking-tight text-cameco-charcoal font-sans">
-                Verify a Document
-              </h1>
-              <p className="text-sm sm:text-base text-cameco-charcoal-muted leading-relaxed">
-                Query the Cameco repository to validate temporary resident endorsements, work authorization instruments, and academic visa accreditations issued across Canadian jurisdictions.
-              </p>
-            </div>
-
-            <form onSubmit={handleFormSubmit} className="space-y-4 bg-white p-5 sm:p-6 border border-cameco-rule shadow-editorial rounded-sm">
-              <div className="space-y-1.5">
-                <label htmlFor="trackingCode" className="block text-xs font-semibold uppercase tracking-wider text-cameco-charcoal">
-                  Document Tracking Code
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
-                    <Search className="w-4 h-4" />
-                  </div>
-                  <input
-                    id="trackingCode"
-                    type="text"
-                    value={trackingCode}
-                    onChange={(e) => setTrackingCode(e.target.value.toUpperCase())}
-                    placeholder="e.g. CAM-2026-8812"
-                    aria-describedby="code-helper"
-                    className="block w-full pl-10 pr-3.5 py-2.5 text-sm font-mono border border-stone-300 rounded-sm bg-white placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-cameco-red focus:border-cameco-red transition-shadow uppercase"
-                  />
-                </div>
-                <p id="code-helper" className="text-[11px] text-stone-500">
-                  Format: Standard 10-to-14 character Cameco registry identifier.
-                </p>
-              </div>
-
-              {/* Approved Users Section directly below code inputer */}
-              <div className="pt-2 border-t border-stone-100 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-1.5">
-                    <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="text-xs font-bold uppercase tracking-wider text-cameco-charcoal">
-                      Approved Users
-                    </span>
-                  </div>
-                  <span className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded-xs text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
-                    <span>Instant Select & Verify</span>
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  {approvedUsers.map((user) => {
-                    const isSelected = trackingCode.trim().toUpperCase() === user.tracking_code.toUpperCase();
-                    return (
-                      <button
-                        key={user.id}
-                        type="button"
-                        onClick={() => {
-                          setTrackingCode(user.tracking_code);
-                          executeVerification(user.tracking_code);
-                        }}
-                        className={`w-full text-left p-2.5 rounded-sm border transition-all duration-150 flex items-center space-x-3 group cursor-pointer ${
-                          isSelected
-                            ? 'bg-emerald-50/80 border-emerald-500 ring-1 ring-emerald-500 shadow-xs'
-                            : 'bg-stone-50/60 hover:bg-stone-100/90 border-stone-200 hover:border-stone-300'
-                        }`}
-                      >
-                        {/* User Image */}
-                        <div className="relative w-11 h-13 rounded-xs border border-stone-300 overflow-hidden bg-stone-200 flex-shrink-0 shadow-2xs">
-                          {user.photo_url ? (
-                            <img
-                              src={user.photo_url}
-                              alt={`${user.first_name} ${user.last_name}`}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-stone-400">
-                              <User className="w-5 h-5" />
-                            </div>
-                          )}
-                          <span className="absolute bottom-0 inset-x-0 bg-emerald-600 text-[8px] text-white text-center font-bold uppercase leading-tight py-0.5">
-                            APPROVED
-                          </span>
-                        </div>
-
-                        {/* User Details: Name, Status, Passport Number */}
-                        <div className="flex-1 min-w-0 space-y-1">
-                          <div className="flex items-center justify-between gap-1">
-                            <span className="text-xs font-bold text-cameco-charcoal truncate group-hover:text-cameco-red transition-colors">
-                              {user.first_name} {user.last_name}
-                            </span>
-                            
-                            {/* Status */}
-                            <span className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded-xs text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex-shrink-0">
-                              <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
-                              <span>Approved</span>
-                            </span>
-                          </div>
-
-                          {/* Passport Number & Tracking Code */}
-                          <div className="flex items-center justify-between text-[11px] text-stone-600">
-                            <div className="flex items-center space-x-1 font-mono">
-                              <CreditCard className="w-3 h-3 text-stone-400 flex-shrink-0" />
-                              <span>Passport: <strong className="text-stone-900">{user.passport_number || 'N/A'}</strong></span>
-                            </div>
-                            <span className="font-mono text-[10px] text-stone-500 bg-white px-1.5 py-0.5 rounded border border-stone-200">
-                              {user.tracking_code}
-                            </span>
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Other Status Samples (Pending / Rejected) */}
-                <div className="pt-1 flex items-center justify-between text-[11px] text-stone-500">
-                  <span className="text-[10px]">Other test status samples:</span>
-                  <div className="flex items-center space-x-1.5">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setTrackingCode('CAM-2026-1934');
-                        executeVerification('CAM-2026-1934');
-                      }}
-                      className="px-1.5 py-0.5 bg-stone-100 hover:bg-stone-200 text-stone-600 font-mono text-[10px] rounded border border-stone-200 transition-colors"
-                    >
-                      Pending (1934)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setTrackingCode('CAM-2026-7731');
-                        executeVerification('CAM-2026-7731');
-                      }}
-                      className="px-1.5 py-0.5 bg-stone-100 hover:bg-stone-200 text-stone-600 font-mono text-[10px] rounded border border-stone-200 transition-colors"
-                    >
-                      Rejected (7731)
-                    </button>
-                  </div>
-                </div>
-              </div>
-
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center space-x-2 px-4 py-2.5 text-sm font-medium text-white bg-cameco-red hover:bg-cameco-red-dark rounded-sm transition-colors shadow-subtle disabled:opacity-60"
+                className="w-full sm:w-auto px-6 py-2.5 bg-[#003865] hover:bg-[#002646] active:bg-[#00172e] text-white text-xs sm:text-sm font-bold rounded-sm transition-colors shadow-2xs disabled:opacity-60 flex items-center justify-center space-x-2"
               >
                 {loading ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Querying Supabase Registry...</span>
+                    <span>Verifying Code...</span>
                   </>
                 ) : (
                   <>
-                    <span>Verify Record</span>
+                    <span>Verify Code</span>
                     <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>
 
-              <div className="pt-2 border-t border-stone-100 flex items-start space-x-2 text-[11px] text-stone-500">
-                <ShieldAlert className="w-4 h-4 text-stone-400 flex-shrink-0 mt-0.5" />
-                <p>
-                  Official Attestation System: Certified cryptographic verification against registered Canadian immigration accreditations.
-                </p>
+              {/* Labeled Demo Test Code for instant testing */}
+              <div className="flex items-center space-x-1.5 text-xs text-stone-500">
+                <span>Demo Code:</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTrackingCode('E00629187');
+                    executeVerification('E00629187');
+                  }}
+                  className="font-mono font-bold text-xs text-[#003865] hover:text-[#002646] underline decoration-stone-300 hover:decoration-[#003865] transition-colors"
+                  title="Load demo test code E00629187"
+                >
+                  E00629187 (Cameco ID)
+                </button>
               </div>
-            </form>
-          </div>
-
-          {/* Right Column: Dynamic Results / Other States */}
-          <div className="lg:col-span-7 space-y-6">
-            
-            {/* Screen Reader Live Region */}
-            <div className="sr-only" role="status" aria-live="polite">
-              {loading && 'Querying document verification registry.'}
-              {result && `Verification completed. Document status is ${result.status} for tracking code ${result.tracking_code}.`}
-              {errorMessage && `Verification error: ${errorMessage}`}
             </div>
+          </form>
 
-            {/* Error State: Network Failure */}
-            {errorType === 'network' && (
-              <div className="bg-white p-6 border-l-4 border-amber-500 border border-stone-200 shadow-subtle rounded-sm space-y-4">
-                <div className="flex items-center space-x-2 text-amber-800 font-semibold text-sm">
-                  <AlertCircle className="w-5 h-5 flex-shrink-0 text-amber-600" />
-                  <span>Network Communication Failure</span>
-                </div>
-                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  {errorMessage}
-                </p>
-                <div className="pt-2 flex items-center space-x-3">
-                  <button
-                    type="button"
-                    onClick={() => executeVerification(trackingCode)}
-                    className="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-medium rounded-sm transition-colors"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    <span>Retry Verification</span>
-                  </button>
-                </div>
-              </div>
-            )}
+          {/* Discreet Privacy Explanation */}
+          <div id="privacy-note" className="pt-3 border-t border-stone-100 flex items-center space-x-2 text-[11px] text-stone-500">
+            <Lock className="w-3.5 h-3.5 text-stone-400 flex-shrink-0" />
+            <span>
+              Record details are private and retrieved strictly upon entry of an authorized tracking identifier.
+            </span>
+          </div>
+        </div>
 
-            {/* Error State: Not Found (Neutral State) */}
-            {errorType === 'notFound' && (
-              <div className="bg-white p-6 border-l-4 border-stone-400 border border-stone-200 shadow-subtle rounded-sm space-y-3">
-                <div className="flex items-center space-x-2 text-stone-800 font-semibold text-sm">
-                  <Info className="w-5 h-5 flex-shrink-0 text-stone-500" />
-                  <span>No Registry Record Located</span>
-                </div>
-                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  {errorMessage}
-                </p>
-                <div className="text-xs text-stone-500 bg-stone-50 p-3 rounded-sm border border-stone-100 space-y-1">
-                  <p className="font-medium text-stone-700">Security Information:</p>
-                  <p className="text-stone-600 text-[11px] leading-relaxed">
-                    This registry returns non-identifying results. The absence of a public record does not confirm or disclose whether private immigration filings exist with federal departments.
-                  </p>
-                </div>
-              </div>
-            )}
+        {/* Accessible Status Announcements */}
+        <div className="sr-only" role="status" aria-live="polite">
+          {loading && 'Verification query in progress.'}
+          {result && `Verification completed. Document status is ${result.status} for record ${result.tracking_code}.`}
+          {errorMessage && `Verification notice: ${errorMessage}`}
+        </div>
 
-            {/* Error State: Syntax Validation */}
-            {errorType === 'validation' && (
-              <div className="bg-white p-6 border-l-4 border-rose-500 border border-stone-200 shadow-subtle rounded-sm space-y-3">
-                <div className="flex items-center space-x-2 text-rose-700 font-semibold text-sm">
-                  <XCircle className="w-5 h-5 flex-shrink-0 text-rose-600" />
-                  <span>Invalid Identifier Format</span>
-                </div>
-                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  {errorMessage}
-                </p>
-              </div>
-            )}
+        {/* Error State: Neutral Not-Found State */}
+        {errorType === 'notFound' && (
+          <div className="bg-white border border-stone-200 border-l-4 border-l-stone-400 p-5 rounded-sm shadow-subtle space-y-2 text-left">
+            <div className="flex items-center space-x-2 text-stone-800 font-semibold text-xs uppercase tracking-wider">
+              <Info className="w-4 h-4 text-stone-500" />
+              <span>Record Not Found</span>
+            </div>
+            <p className="text-xs text-stone-600 leading-relaxed">
+              {errorMessage}
+            </p>
+            <p className="text-[11px] text-stone-500">
+              Please verify your tracking code digits or confirm registration with your issuing bureau.
+            </p>
+          </div>
+        )}
 
-            {/* Awaiting Input State */}
-            {!result && !errorType && (
-              <div className="bg-white p-8 border border-cameco-rule shadow-subtle rounded-sm text-center space-y-4">
-                <div className="inline-flex p-3 rounded-full bg-stone-100 text-stone-500">
-                  <Search className="w-6 h-6" />
-                </div>
-                <div className="max-w-md mx-auto space-y-2">
-                  <h2 className="text-base font-semibold text-cameco-charcoal">
-                    Awaiting Record Identifier
-                  </h2>
-                  <p className="text-xs sm:text-sm text-cameco-charcoal-subtle leading-relaxed">
-                    Enter a tracking code on the left or select one of the sample references to view authenticated filing status, issuance office, and authorized scope.
-                  </p>
-                </div>
-                <div className="pt-4 border-t border-stone-100 flex flex-wrap justify-center items-center gap-6 text-xs text-stone-500">
-                  <span className="flex items-center space-x-1.5">
-                    <UserCheck className="w-3.5 h-3.5 text-stone-400" />
-                    <span>Applicant Identity Verification</span>
-                  </span>
-                  <span className="flex items-center space-x-1.5">
-                    <Building2 className="w-3.5 h-3.5 text-stone-400" />
-                    <span>Issuing Bureau Verification</span>
-                  </span>
-                </div>
-              </div>
-            )}
+        {/* Error State: Validation or Network Failure */}
+        {(errorType === 'validation' || errorType === 'network') && (
+          <div className="bg-white border border-rose-200 border-l-4 border-l-rose-500 p-5 rounded-sm shadow-subtle space-y-2 text-left">
+            <div className="flex items-center space-x-2 text-rose-800 font-semibold text-xs uppercase tracking-wider">
+              <AlertCircle className="w-4 h-4 text-rose-600" />
+              <span>{errorType === 'validation' ? 'Input Validation Notice' : 'Network Communication Failure'}</span>
+            </div>
+            <p className="text-xs text-stone-600 leading-relaxed">
+              {errorMessage}
+            </p>
+          </div>
+        )}
 
-            {/* Result: APPROVED (VERIFIED) - RENAMED TO "Approved" WITH CLEAR SEENABLE PHOTO */}
-            {result && result.status === 'VERIFIED' && (
-              <div
-                key={animKey}
-                className="anim-panel-reveal bg-white border border-cameco-rule shadow-editorial rounded-sm overflow-hidden space-y-6"
-              >
-                {/* Success Header with Maple Particles & SVG Stroke Checkmark */}
-                <div className="p-6 sm:p-7 border-b border-cameco-rule bg-stone-50/70 relative overflow-hidden">
+        {/* Dynamic Result Display: RENDERED ONLY AFTER SUBMISSION */}
+        <div ref={resultRef}>
+          {result && (
+            <div key={animKey} className="space-y-6">
+              
+              {/* STATUS 1: VERIFIED (APPROVED) */}
+              {result.status === 'VERIFIED' && (
+                <div className="anim-panel-reveal space-y-6">
                   
-                  {/* Subtle Red & White Canadian Maple Leaf Particles */}
-                  <div className="absolute inset-0 pointer-events-none flex items-center justify-center" aria-hidden="true">
-                    {!isAnimationSettled && particles.map((p) => (
-                      <div
-                        key={p.id}
-                        className="anim-maple-particle absolute"
-                        style={{
-                          '--tw-particle-x': `${p.x}px`,
-                          '--tw-particle-y': `${p.y}px`,
-                          '--tw-particle-rot': `${p.rot}deg`,
-                          animationDelay: `${p.delay}s`,
-                        } as React.CSSProperties}
-                      >
-                        <MapleLeafIcon
-                          className="drop-shadow-xs"
-                          fill={p.color}
-                          style={{ width: p.size, height: p.size }}
-                        />
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
-                    <div className="flex items-center space-x-4">
-                      
-                      {/* Animated Circular Success Badge */}
-                      <div className="anim-circle-pop relative flex-shrink-0 w-12 h-12 rounded-full bg-emerald-50 border-2 border-emerald-500/80 flex items-center justify-center shadow-subtle">
-                        <svg
-                          className="w-6 h-6 text-emerald-600"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          aria-hidden="true"
-                        >
-                          <polyline
-                            className="anim-checkmark-stroke"
-                            points="20 6 9 17 4 12"
-                          />
-                        </svg>
-                      </div>
-
-                      <div className="space-y-0.5">
-                        <div className="anim-fade-up-1 flex items-center space-x-2">
-                          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-emerald-700 font-sans">
-                            Approved
-                          </h2>
-                          <div className="border border-slate-200 rounded-xs overflow-hidden shadow-2xs">
-                            <CanadaFlag className="h-3 w-6" />
-                          </div>
-                        </div>
-                        <p className="anim-fade-up-2 text-xs font-mono text-stone-500">
-                          Record Identifier: <strong className="text-cameco-charcoal">{result.tracking_code}</strong>
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="anim-fade-up-2 flex items-center space-x-2 self-start sm:self-center">
-                      <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-sm text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>APPROVED & ACTIVE</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Clear, Prominently Visible Applicant Profile Section */}
-                <div className="anim-fade-up-2 px-6 sm:px-7">
-                  <div className="p-5 bg-gradient-to-r from-stone-50 via-white to-stone-50 border border-stone-200 rounded-sm shadow-subtle flex flex-col sm:flex-row items-center sm:items-start gap-5">
+                  {/* Approval Banner with SVG Stroke Checkmark & Tasteful Maple Flourish */}
+                  <div className="p-5 sm:p-6 bg-white border border-stone-200 rounded-sm shadow-editorial relative overflow-hidden text-left">
                     
-                    {/* High-Resolution Seenable Portrait Card */}
-                    <div className="w-28 h-36 sm:w-32 sm:h-40 rounded-sm border-2 border-stone-300 overflow-hidden bg-stone-100 shadow-editorial flex-shrink-0 relative">
-                      {result.photo_url ? (
-                        <img
-                          src={result.photo_url}
-                          alt={result.holder_name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex flex-col items-center justify-center text-stone-400">
-                          <User className="w-10 h-10" />
-                          <span className="text-[10px] font-mono mt-1 text-stone-500">OFFICIAL PHOTO</span>
+                    {/* Maple Leaf Flourish (Lasts ≤ 1.5 seconds) */}
+                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center" aria-hidden="true">
+                      {!isAnimationSettled && particles.map((p) => (
+                        <div
+                          key={p.id}
+                          className="anim-maple-particle absolute"
+                          style={{
+                            '--tw-particle-x': `${p.x}px`,
+                            '--tw-particle-y': `${p.y}px`,
+                            '--tw-particle-rot': `${p.rot}deg`,
+                            animationDelay: `${p.delay}s`,
+                          } as React.CSSProperties}
+                        >
+                          <MapleLeafIcon
+                            className="drop-shadow-xs"
+                            fill={p.color}
+                            style={{ width: p.size, height: p.size }}
+                          />
                         </div>
-                      )}
-                      <div className="absolute bottom-0 inset-x-0 bg-stone-900/80 text-white text-[9px] uppercase font-mono text-center py-0.5">
-                        VERIFIED PORTRAIT
-                      </div>
+                      ))}
                     </div>
 
-                    {/* Applicant Information Grid */}
-                    <div className="flex-1 space-y-3 text-center sm:text-left w-full">
-                      <div>
-                        <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider block">
-                          ACCREDITED APPLICANT NAME
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+                      <div className="flex items-center space-x-3.5">
+                        
+                        {/* Circular Success Icon with Self-Drawing Checkmark */}
+                        <div className="anim-circle-pop relative flex-shrink-0 w-11 h-11 rounded-full bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center">
+                          <svg
+                            className="w-5 h-5 text-emerald-600"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            aria-hidden="true"
+                          >
+                            <polyline
+                              className="anim-checkmark-stroke"
+                              points="20 6 9 17 4 12"
+                            />
+                          </svg>
+                        </div>
+
+                        <div>
+                          <div className="anim-fade-up-1 flex items-center space-x-2">
+                            <h2 className="text-lg sm:text-xl font-bold text-[#0b1f3a] font-sans">
+                              Verification Successful
+                            </h2>
+                            <CanadaFlag className="h-3.5 w-7 border border-slate-200 rounded-xs shadow-2xs" />
+                          </div>
+                          
+                          <p className="anim-fade-up-2 text-xs text-stone-500 font-mono mt-0.5">
+                            Record Number: <strong className="text-slate-800">{result.tracking_code}</strong> • Category: <span className="text-slate-700 font-sans font-medium">{result.category}</span>
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Status Badge */}
+                      <div className="anim-fade-up-2 self-start sm:self-center">
+                        <span className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-sm bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold uppercase tracking-wider">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                          <span>APPROVED & ACTIVE</span>
                         </span>
-                        <h3 className="text-lg sm:text-xl font-extrabold text-cameco-charcoal tracking-tight font-sans">
-                          {result.holder_name}
-                        </h3>
-                        <p className="text-xs font-semibold text-cameco-red">
-                          {result.category}
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1 text-xs text-stone-600">
-                        <div className="p-2 bg-white rounded-xs border border-stone-200">
-                          <span className="text-[10px] font-bold uppercase text-stone-400 block">Nationality</span>
-                          <span className="font-semibold text-stone-800">{result.nationality || 'CANADA'}</span>
-                        </div>
-                        <div className="p-2 bg-white rounded-xs border border-stone-200">
-                          <span className="text-[10px] font-bold uppercase text-stone-400 block">Passport No.</span>
-                          <span className="font-mono font-bold text-stone-800">{result.passport_number || 'E00629187'}</span>
-                        </div>
-                        <div className="p-2 bg-white rounded-xs border border-stone-200 col-span-2 sm:col-span-1">
-                          <span className="text-[10px] font-bold uppercase text-stone-400 block">Status</span>
-                          <span className="font-bold text-emerald-700">AUTHENTICATED</span>
-                        </div>
                       </div>
                     </div>
+                  </div>
 
+                  {/* Identity Card revealed below result summary */}
+                  <div className="anim-panel-reveal">
+                    <CamecoIdCard result={result} />
                   </div>
                 </div>
+              )}
 
-                {/* Staggered Record Details Panel */}
-                <div className="anim-fade-up-3 px-6 sm:px-7 space-y-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                    <div className="p-3 bg-stone-50 rounded-sm border border-stone-200/60 space-y-1">
-                      <span className="text-stone-500 flex items-center space-x-1.5 font-medium">
-                        <FileSearch className="w-3.5 h-3.5" />
-                        <span>Document Category</span>
-                      </span>
-                      <p className="font-semibold text-cameco-charcoal text-sm">
-                        {result.category}
-                      </p>
-                    </div>
-
-                    <div className="p-3 bg-stone-50 rounded-sm border border-stone-200/60 space-y-1">
-                      <span className="text-stone-500 flex items-center space-x-1.5 font-medium">
-                        <UserCheck className="w-3.5 h-3.5" />
-                        <span>Holder Identification</span>
-                      </span>
-                      <p className="font-semibold text-cameco-charcoal text-sm">
-                        {result.holder_name}
-                      </p>
-                    </div>
-
-                    <div className="p-3 bg-stone-50 rounded-sm border border-stone-200/60 space-y-1">
-                      <span className="text-stone-500 flex items-center space-x-1.5 font-medium">
-                        <Building2 className="w-3.5 h-3.5" />
-                        <span>Issuing Regional Bureau</span>
-                      </span>
-                      <p className="font-semibold text-cameco-charcoal text-sm">
-                        {result.issuing_office}
-                      </p>
-                    </div>
-
-                    <div className="p-3 bg-stone-50 rounded-sm border border-stone-200/60 space-y-1">
-                      <span className="text-stone-500 flex items-center space-x-1.5 font-medium">
-                        <Calendar className="w-3.5 h-3.5" />
-                        <span>Validity Period</span>
-                      </span>
-                      <p className="font-semibold text-cameco-charcoal text-sm">
-                        {formatDate(result.issue_date)} — {formatDate(result.expiry_date)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3 pt-2 border-t border-stone-100">
-                    <div className="space-y-1.5">
-                      <h4 className="text-xs font-semibold uppercase tracking-wider text-stone-700 flex items-center space-x-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>What this verification establishes</span>
-                      </h4>
-                      <p className="text-xs text-stone-600 leading-relaxed pl-5">
-                        {result.message}
-                      </p>
-                    </div>
-
-                    <div className="space-y-1.5 pt-2">
-                      <h4 className="text-xs font-semibold uppercase tracking-wider text-amber-800 flex items-center space-x-1.5">
-                        <Info className="w-3.5 h-3.5 text-amber-600" />
-                        <span>Scope Limitations & Disclaimers</span>
-                      </h4>
-                      <p className="text-xs text-stone-600 leading-relaxed pl-5 bg-amber-50/60 p-2.5 rounded-sm border border-amber-200/50">
-                        {result.scope_notice}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-cameco-rule flex flex-wrap items-center justify-between gap-3 text-[11px] text-stone-500 pb-6">
-                    <span>
-                      Attestation timestamp: <strong className="font-mono text-cameco-charcoal">{formatDate(result.verified_at)}</strong>
-                    </span>
-                    <div className="flex items-center space-x-4">
-                      <button
-                        type="button"
-                        onClick={handleReplay}
-                        className="inline-flex items-center space-x-1 text-stone-600 hover:text-cameco-charcoal transition-colors"
-                        title="Replay approval animation"
-                      >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        <span>Replay Animation</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => window.print()}
-                        className="inline-flex items-center space-x-1 text-stone-600 hover:text-cameco-charcoal transition-colors"
-                      >
-                        <Printer className="w-3.5 h-3.5" />
-                        <span>Print Summary</span>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Generated Canadian Visa Electronic ID Card */}
-                <div className="p-6 sm:p-7 bg-stone-50 border-t border-cameco-rule">
-                  <CanadaIdCard result={result} />
-                </div>
-
-              </div>
-            )}
-
-            {/* Result: PENDING REVIEW */}
-            {result && result.status === 'PENDING_REVIEW' && (
-              <div className="anim-panel-reveal bg-white border border-cameco-rule shadow-editorial rounded-sm overflow-hidden">
-                <div className="p-6 border-b border-cameco-rule bg-amber-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center space-x-3.5">
-                    <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
+              {/* STATUS 2: PENDING REVIEW (No approved card shown) */}
+              {result.status === 'PENDING_REVIEW' && (
+                <div className="anim-panel-reveal bg-white border border-amber-300 border-l-4 border-l-amber-500 p-6 rounded-sm shadow-editorial space-y-3 text-left">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-9 h-9 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
                       <Clock className="w-5 h-5" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold tracking-tight text-cameco-charcoal font-sans">
+                      <h2 className="text-lg font-bold text-[#0b1f3a] font-sans">
                         Pending Administrative Review
                       </h2>
                       <p className="text-xs font-mono text-stone-500">
-                        Tracking Code: <strong className="text-cameco-charcoal">{result.tracking_code}</strong>
+                        Record Number: <strong className="text-slate-800">{result.tracking_code}</strong>
                       </p>
                     </div>
                   </div>
-                  <span className="px-3 py-1 rounded-sm text-xs font-semibold bg-amber-100 text-amber-900 border border-amber-300">
-                    UNDER ADMINISTRATIVE REVIEW
-                  </span>
-                </div>
 
-                <div className="p-5 sm:p-6 space-y-5 text-xs">
-                  <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-sm text-amber-900 leading-relaxed">
-                    This filing is actively registered in the Cameco repository but is currently awaiting secondary issuing desk reconciliation, biometrics confirmation, or institutional labor audit before final validation endorsement.
+                  <div className="p-3 bg-amber-50 text-amber-900 text-xs rounded-sm border border-amber-200 leading-relaxed">
+                    This filing is registered in the Cameco repository but is currently awaiting secondary desk reconciliation or intake verification before final endorsement.
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="p-3 bg-stone-50 rounded-sm border border-stone-200/60 space-y-1">
-                      <span className="text-stone-500 font-medium">Category</span>
-                      <p className="font-semibold text-cameco-charcoal">{result.category}</p>
-                    </div>
-                    <div className="p-3 bg-stone-50 rounded-sm border border-stone-200/60 space-y-1">
-                      <span className="text-stone-500 font-medium">Issuing Bureau</span>
-                      <p className="font-semibold text-cameco-charcoal">{result.issuing_office}</p>
-                    </div>
+                  <div className="pt-2 flex items-center justify-between text-xs text-stone-500">
+                    <span>Holder: <strong className="text-slate-700">{result.holder_name}</strong></span>
+                    <span>Category: <strong className="text-slate-700">{result.category}</strong></span>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Result: REJECTED / NOT APPROVED */}
-            {result && result.status === 'REJECTED' && (
-              <div className="anim-panel-reveal bg-white border border-cameco-rule shadow-editorial rounded-sm overflow-hidden">
-                <div className="p-6 border-b border-cameco-rule bg-rose-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center space-x-3.5">
-                    <div className="w-10 h-10 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center flex-shrink-0">
+              {/* STATUS 3: REJECTED / EXPIRED / REVOKED (No approved card shown) */}
+              {result.status !== 'VERIFIED' && result.status !== 'PENDING_REVIEW' && (
+                <div className="anim-panel-reveal bg-white border border-rose-200 border-l-4 border-l-rose-500 p-6 rounded-sm shadow-editorial space-y-3 text-left">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-9 h-9 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center flex-shrink-0">
                       <XCircle className="w-5 h-5" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold tracking-tight text-cameco-charcoal font-sans">
-                        Document Not Approved
+                      <h2 className="text-lg font-bold text-rose-900 font-sans">
+                        Record Status: {result.status}
                       </h2>
                       <p className="text-xs font-mono text-stone-500">
-                        Tracking Code: <strong className="text-cameco-charcoal">{result.tracking_code}</strong>
+                        Record Number: <strong className="text-slate-800">{result.tracking_code}</strong>
                       </p>
                     </div>
                   </div>
-                  <span className="px-3 py-1 rounded-sm text-xs font-semibold bg-rose-100 text-rose-900 border border-rose-300">
-                    NOT APPROVED
-                  </span>
-                </div>
 
-                <div className="p-5 sm:p-6 space-y-5 text-xs">
-                  <div className="p-3 bg-rose-50/70 border border-rose-200 rounded-sm text-rose-900 leading-relaxed">
-                    This document reference was rejected by the registering bureau or flagged for credential discrepancy. It does not possess active accreditation in the Cameco registry.
-                  </div>
+                  <p className="text-xs text-stone-600 leading-relaxed">
+                    This document record is currently not endorsed as active in the verification registry.
+                  </p>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="p-3 bg-stone-50 rounded-sm border border-stone-200/60 space-y-1">
-                      <span className="text-stone-500 font-medium">Category</span>
-                      <p className="font-semibold text-cameco-charcoal">{result.category}</p>
-                    </div>
-                    <div className="p-3 bg-stone-50 rounded-sm border border-stone-200/60 space-y-1">
-                      <span className="text-stone-500 font-medium">Filing Bureau</span>
-                      <p className="font-semibold text-cameco-charcoal">{result.issuing_office}</p>
-                    </div>
+                  <div className="pt-2 flex items-center justify-between text-xs text-stone-500">
+                    <span>Holder: <strong className="text-slate-700">{result.holder_name}</strong></span>
+                    <span>Category: <strong className="text-slate-700">{result.category}</strong></span>
                   </div>
                 </div>
+              )}
+
+              {/* Reset action button */}
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="text-xs text-stone-500 hover:text-[#003865] underline transition-colors"
+                >
+                  Verify another document code
+                </button>
               </div>
-            )}
 
-            {/* Result: EXPIRED / REVOKED */}
-            {result && (result.status === 'EXPIRED' || result.status === 'REVOKED') && (
-              <div className="anim-panel-reveal bg-white border border-cameco-rule shadow-editorial rounded-sm overflow-hidden">
-                <div className="p-6 border-b border-cameco-rule bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center space-x-3.5">
-                    <div className="w-10 h-10 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center flex-shrink-0">
-                      <AlertCircle className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h2 className="text-xl font-bold tracking-tight text-cameco-charcoal font-sans">
-                        Record Validity Expired
-                      </h2>
-                      <p className="text-xs font-mono text-stone-500">
-                        Tracking Code: <strong className="text-cameco-charcoal">{result.tracking_code}</strong>
-                      </p>
-                    </div>
-                  </div>
-                  <span className="px-3 py-1 rounded-sm text-xs font-semibold bg-slate-200 text-slate-900 border border-slate-300">
-                    EXPIRED / INACTIVE
-                  </span>
-                </div>
-
-                <div className="p-5 sm:p-6 space-y-5 text-xs">
-                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-sm text-slate-700 leading-relaxed">
-                    This certificate accreditation has passed its designated expiry date ({formatDate(result.expiry_date)}). Renewal or extension filing with the issuing bureau is required for valid attestation.
-                  </div>
-                </div>
-              </div>
-            )}
-
-          </div>
-
+            </div>
+          )}
         </div>
+
       </div>
     </section>
   );
 }
-

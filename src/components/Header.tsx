@@ -24,7 +24,7 @@ export function Header() {
                 </span>
               </div>
               <span className="text-[11px] text-cameco-charcoal-subtle tracking-normal">
-                Independent Visa Document Attestation
+                Independent Document Verification & Attestation
               </span>
             </div>
           </Link>

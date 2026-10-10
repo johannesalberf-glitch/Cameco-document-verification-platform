@@ -1,10 +1,15 @@
 export type RecordCategory =
+  | 'B - Private Sector Work Visa'
+  | 'A - Government Sector Work Visa'
+  | 'C - Family Visit Visa'
+  | 'Electronic Tourist Visa'
   | 'Temporary Resident Visa'
   | 'Study Permit Accreditation'
   | 'Work Authorization Certificate'
   | 'Express Entry Verification'
   | 'Provincial Nominee Verification'
-  | 'Visitor Record Validation';
+  | 'Visitor Record Validation'
+  | string;
 
 export type RecordStatus =
   | 'VERIFIED'
@@ -28,6 +33,7 @@ export interface ApplicantRecord {
   notes?: string;
   nationality?: string;
   passport_number?: string;
+  phone_number?: string;
   occupation?: string;
   gender?: string;
   birth_date?: string;
@@ -44,6 +50,7 @@ export interface PublicVerificationResult {
   photo_url?: string;
   nationality?: string;
   passport_number?: string;
+  phone_number?: string;
   occupation?: string;
   gender?: string;
   birth_date?: string;
@@ -59,9 +66,10 @@ export interface PublicVerificationResult {
 export interface AuditLog {
   id: string;
   record_id: string;
-  action: 'CREATE' | 'STATUS_CHANGE' | 'PHOTO_UPLOAD' | 'EDIT' | 'DELETE';
+  action: 'CREATE' | 'STATUS_CHANGE' | 'PHOTO_UPLOAD' | 'EDIT' | 'DELETE' | 'SEED';
   performed_by: string;
   details: string;
   created_at: string;
 }
+
 

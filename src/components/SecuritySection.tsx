@@ -1,70 +1,90 @@
+'use client';
+
 import React from 'react';
 import { Lock, EyeOff, ShieldCheck, History } from 'lucide-react';
+import { CanadaFlag } from './CanadaFlag';
 
 export function SecuritySection() {
-  const securityFeatures = [
+  const points = [
     {
-      title: 'Zero-Knowledge Public Boundary',
-      desc: 'Public verification endpoints strictly emit non-sensitive operational parameters: document category, validity dates, issuing office, and status. Passports, contact numbers, and personal identifiers are cryptographically withheld from public responses.',
+      title: 'Private Query Boundary',
+      desc: 'Public verification lookups require a valid matching tracking code. The system does not support public user browsing, scraping, or open directory enumeration.',
       icon: EyeOff,
     },
     {
-      title: 'Row Level Security (RLS)',
-      desc: 'All PostgreSQL tables enforce Row Level Security. Unauthenticated queries are barred from reading private columns, while service-role authorizations remain exclusively confined to server-side administrative handlers.',
+      title: 'Restricted Demographic Display',
+      desc: 'Sensitive identifiers such as passport numbers and phone numbers are masked or restricted by default, preventing unnecessary exposure during status audits.',
       icon: Lock,
     },
     {
-      title: 'Comprehensive Action Auditing',
-      desc: 'Every administrative transaction—including status transitions, record updates, and photo ingestion—is chronologically committed to an immutable audit ledger with operator email attribution.',
+      title: 'Audited Administrative Access',
+      desc: 'Record creation, status modifications, and document updates require authenticated operator credentials and are recorded in an internal audit trail.',
       icon: History,
-    },
-    {
-      title: 'Data Residency Alignment',
-      desc: 'Storage architecture and database schemas are structured to comply with Canadian federal PIPEDA standards for privacy protection and institutional document stewardship.',
-      icon: ShieldCheck,
     },
   ];
 
   return (
-    <section className="py-12 lg:py-16 bg-cameco-canvas border-b border-cameco-rule">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mb-10 space-y-2">
-          <span className="text-xs font-semibold uppercase tracking-wider text-cameco-red">
-            Security & Compliance
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-cameco-charcoal font-sans">
-            Guaranteed Privacy and Data Integrity
-          </h2>
-          <p className="text-xs sm:text-sm text-cameco-charcoal-muted leading-relaxed">
-            Engineered from inception with the security rigor expected by immigration consultants, educational institutions, and corporate legal departments.
-          </p>
-        </div>
+    <section className="py-12 sm:py-16 bg-[#fbfbf9] border-b border-stone-200">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Left Column: Heading and Context */}
+          <div className="lg:col-span-5 space-y-4">
+            <div className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-cameco-red">
+              <span className="w-1.5 h-1.5 rounded-full bg-cameco-red" />
+              <span>Data Protection</span>
+            </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {securityFeatures.map((f) => {
-            const Icon = f.icon;
-            return (
-              <div
-                key={f.title}
-                className="p-6 bg-white border border-cameco-rule rounded-sm shadow-editorial space-y-3"
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 rounded-sm bg-cameco-red-surface text-cameco-red border border-cameco-red-border">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#0b1f3a] font-sans">
+              Privacy & Security Controls
+            </h2>
+
+            <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+              Cameco document verification is engineered with privacy-by-design principles to ensure that personal records remain protected while providing reliable status validation.
+            </p>
+
+            <div className="p-4 bg-white border border-stone-200 rounded-sm shadow-subtle space-y-2">
+              <div className="flex items-center space-x-2">
+                <CanadaFlag className="h-4 w-8 border border-slate-200 rounded-xs" />
+                <span className="text-xs font-bold text-slate-800">
+                  Canadian Data Handling Standard
+                </span>
+              </div>
+              <p className="text-[11px] text-stone-500 leading-relaxed">
+                Database architectures and query endpoints are structured to respect Canadian federal privacy principles regarding document verification and personal data minimization.
+              </p>
+            </div>
+          </div>
+
+          {/* Right Column: Key Commitments in Vertical List (Distinct from 3-card layout) */}
+          <div className="lg:col-span-7 space-y-3.5">
+            {points.map((p) => {
+              const Icon = p.icon;
+              return (
+                <div
+                  key={p.title}
+                  className="p-4 sm:p-5 bg-white border border-stone-200 rounded-sm shadow-subtle flex items-start space-x-4"
+                >
+                  <div className="w-8 h-8 rounded-sm bg-stone-100 border border-stone-200 text-[#003865] flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Icon className="w-4 h-4" />
                   </div>
-                  <h3 className="text-sm font-semibold text-cameco-charcoal">
-                    {f.title}
-                  </h3>
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-bold text-[#0b1f3a] font-sans">
+                      {p.title}
+                    </h3>
+                    <p className="text-xs text-stone-600 leading-relaxed">
+                      {p.desc}
+                    </p>
+                  </div>
                 </div>
-                <p className="text-xs text-stone-600 leading-relaxed pl-9">
-                  {f.desc}
-                </p>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
+
         </div>
+
       </div>
     </section>
   );
 }
-

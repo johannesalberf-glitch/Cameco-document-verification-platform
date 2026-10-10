@@ -5,9 +5,33 @@ import { ApplicantRecord, AuditLog, RecordStatus, RecordCategory } from './types
 import { normalizeTrackingCode } from './utils';
 
 const BACKUP_FILE = '/tmp/cameco_records.json';
+const LOCAL_DATA_FILE = path.join(process.cwd(), 'data', 'records.json');
 const AUDIT_FILE = '/tmp/cameco_audit.json';
+const LOCAL_AUDIT_FILE = path.join(process.cwd(), 'data', 'audit.json');
 
 const SEED_RECORDS: ApplicantRecord[] = [
+  {
+    id: 'rec_kwt_001',
+    tracking_code: 'E00629187',
+    first_name: 'LAMROT GETACHEW',
+    last_name: 'ZEMEDAGEGNEHU',
+    category: 'Work Authorization Certificate',
+    status: 'VERIFIED',
+    issue_date: '2026-09-29',
+    expiry_date: '2029-11-15',
+    photo_url: '/lamrot-photo.png',
+    issuing_office: 'Cameco Central Verification Registry',
+    published_demo: true,
+    nationality: 'ETHIOPIA',
+    passport_number: 'E00629187',
+    phone_number: '+251 91 123 4567',
+    occupation: 'Sell officer',
+    gender: 'Female',
+    birth_date: '2002-07-21',
+    notes: 'Official Cameco Identity Record verified and active under registry registration.',
+    created_at: '2026-09-29T08:00:00Z',
+    updated_at: '2026-09-29T08:00:00Z',
+  },
   {
     id: 'rec_101',
     tracking_code: 'CAM-2026-8812',
@@ -22,6 +46,7 @@ const SEED_RECORDS: ApplicantRecord[] = [
     published_demo: true,
     nationality: 'UNITED KINGDOM',
     passport_number: 'GB8821904',
+    phone_number: '+1 (613) 555-0142',
     occupation: 'Senior Geoscientist',
     gender: 'Female',
     birth_date: '1992-05-14',
@@ -43,6 +68,7 @@ const SEED_RECORDS: ApplicantRecord[] = [
     published_demo: true,
     nationality: 'SINGAPORE',
     passport_number: 'E49102847',
+    phone_number: '+1 (604) 555-0188',
     occupation: 'Postgraduate Researcher',
     gender: 'Male',
     birth_date: '1998-11-20',
@@ -64,6 +90,7 @@ const SEED_RECORDS: ApplicantRecord[] = [
     published_demo: true,
     nationality: 'NIGERIA',
     passport_number: 'A09418274',
+    phone_number: '+1 (416) 555-0199',
     occupation: 'Process Safety Engineer',
     gender: 'Female',
     birth_date: '1995-03-08',
@@ -85,6 +112,7 @@ const SEED_RECORDS: ApplicantRecord[] = [
     published_demo: true,
     nationality: 'AUSTRALIA',
     passport_number: 'N19284719',
+    phone_number: '+1 (403) 555-0177',
     occupation: 'Field Operations Consultant',
     gender: 'Male',
     birth_date: '1989-12-03',
@@ -106,6 +134,7 @@ const SEED_RECORDS: ApplicantRecord[] = [
     published_demo: false,
     nationality: 'UKRAINE',
     passport_number: 'PU9102831',
+    phone_number: '+1 (514) 555-0166',
     occupation: 'Statistical Analyst',
     gender: 'Female',
     birth_date: '1994-08-27',
@@ -127,6 +156,7 @@ const SEED_RECORDS: ApplicantRecord[] = [
     published_demo: true,
     nationality: 'BRAZIL',
     passport_number: 'BR4820193',
+    phone_number: '+1 (902) 555-0123',
     occupation: 'Software Systems Architect',
     gender: 'Male',
     birth_date: '1991-07-19',
@@ -137,6 +167,14 @@ const SEED_RECORDS: ApplicantRecord[] = [
 ];
 
 const SEED_AUDIT: AuditLog[] = [
+  {
+    id: 'aud_kwt_1',
+    record_id: 'rec_kwt_001',
+    action: 'CREATE',
+    performed_by: 'admin@cameco.ca',
+    details: 'Initial Cameco ID registration for LAMROT GETACHEW ZEMEDAGEGNEHU (E00629187)',
+    created_at: '2026-09-29T08:00:00Z',
+  },
   {
     id: 'aud_1',
     record_id: 'rec_101',
@@ -163,38 +201,74 @@ const SEED_AUDIT: AuditLog[] = [
   }
 ];
 
+function ensureDataDir() {
+  try {
+    const dir = path.join(process.cwd(), 'data');
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  } catch {
+    // Ignore directory creation error
+  }
+}
+
+function sanitizeRecord(r: ApplicantRecord): ApplicantRecord {
+  const cleanGender = (r.gender || 'Female').replace(/ \/ .*$/, '');
+  const cleanOffice = r.issuing_office?.includes('Kuwait') 
+    ? 'Cameco Central Verification Registry' 
+    : r.issuing_office || 'Cameco Central Verification Registry';
+  const cleanNotes = r.notes?.replace(/Kuwait Electronic Visa/gi, 'Cameco Identity Record') || r.notes;
+
+  return {
+    ...r,
+    gender: cleanGender,
+    issuing_office: cleanOffice,
+    notes: cleanNotes,
+  };
+}
+
 function readLocalRecords(): ApplicantRecord[] {
   try {
-    if (fs.existsSync(BACKUP_FILE)) {
-      const data = fs.readFileSync(BACKUP_FILE, 'utf8');
+    ensureDataDir();
+    let fileToRead = null;
+    if (fs.existsSync(LOCAL_DATA_FILE)) {
+      fileToRead = LOCAL_DATA_FILE;
+    } else if (fs.existsSync(BACKUP_FILE)) {
+      fileToRead = BACKUP_FILE;
+    }
+
+    if (fileToRead) {
+      const data = fs.readFileSync(fileToRead, 'utf8');
       const parsed: ApplicantRecord[] = JSON.parse(data);
-      // Merge with seed records so missing fields/photos get enriched
-      return parsed.map((item) => {
-        const seed = SEED_RECORDS.find((s) => s.id === item.id || s.tracking_code === item.tracking_code);
-        if (seed) {
-          return {
-            ...seed,
-            ...item,
-            photo_url: item.photo_url || seed.photo_url,
-            nationality: item.nationality || seed.nationality,
-            passport_number: item.passport_number || seed.passport_number,
-            occupation: item.occupation || seed.occupation,
-            gender: item.gender || seed.gender,
-            birth_date: item.birth_date || seed.birth_date,
+      // Ensure seed records are present and sanitized
+      const combined = parsed.map(sanitizeRecord);
+      for (const seed of SEED_RECORDS) {
+        const index = combined.findIndex((r) => r.id === seed.id || r.tracking_code.toUpperCase() === seed.tracking_code.toUpperCase());
+        if (index === -1) {
+          combined.push(seed);
+        } else {
+          // Merge phone number or clean office if missing
+          combined[index] = {
+            ...combined[index],
+            phone_number: combined[index].phone_number || seed.phone_number,
+            gender: sanitizeRecord(combined[index]).gender,
+            issuing_office: sanitizeRecord(combined[index]).issuing_office,
           };
         }
-        return item;
-      });
+      }
+      return combined;
     }
   } catch {
     // Falls back to seed records on read error.
   }
-  return SEED_RECORDS;
+  return SEED_RECORDS.map(sanitizeRecord);
 }
 
 function writeLocalRecords(records: ApplicantRecord[]) {
   try {
+    ensureDataDir();
     fs.writeFileSync(BACKUP_FILE, JSON.stringify(records, null, 2), 'utf8');
+    fs.writeFileSync(LOCAL_DATA_FILE, JSON.stringify(records, null, 2), 'utf8');
   } catch {
     // Ignores write errors in read-only environments.
   }
@@ -202,8 +276,16 @@ function writeLocalRecords(records: ApplicantRecord[]) {
 
 function readLocalAudit(): AuditLog[] {
   try {
-    if (fs.existsSync(AUDIT_FILE)) {
-      const data = fs.readFileSync(AUDIT_FILE, 'utf8');
+    ensureDataDir();
+    let fileToRead = null;
+    if (fs.existsSync(LOCAL_AUDIT_FILE)) {
+      fileToRead = LOCAL_AUDIT_FILE;
+    } else if (fs.existsSync(AUDIT_FILE)) {
+      fileToRead = AUDIT_FILE;
+    }
+
+    if (fileToRead) {
+      const data = fs.readFileSync(fileToRead, 'utf8');
       return JSON.parse(data);
     }
   } catch {
@@ -214,28 +296,81 @@ function readLocalAudit(): AuditLog[] {
 
 function writeLocalAudit(logs: AuditLog[]) {
   try {
+    ensureDataDir();
     fs.writeFileSync(AUDIT_FILE, JSON.stringify(logs, null, 2), 'utf8');
+    fs.writeFileSync(LOCAL_AUDIT_FILE, JSON.stringify(logs, null, 2), 'utf8');
   } catch {
     // Ignores write errors in read-only environments.
   }
 }
 
 export async function getRecordByTrackingCode(code: string): Promise<ApplicantRecord | null> {
-  const normalized = normalizeTrackingCode(code);
+  const raw = (code || '').trim();
+  if (!raw) return null;
+  const normalized = normalizeTrackingCode(raw);
+  const digitsOnly = raw.replace(/\D/g, '');
 
   if (isSupabaseConfigured && supabase) {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('records')
       .select('*')
-      .eq('tracking_code', normalized)
+      .or(`tracking_code.eq.${normalized},passport_number.eq.${raw.toUpperCase()},tracking_code.ilike.%${raw}%`)
+      .limit(1)
       .maybeSingle();
 
-    if (!error && data) return data as ApplicantRecord;
+    if (data) return data as ApplicantRecord;
   }
 
   const local = readLocalRecords();
-  return local.find((r) => r.tracking_code === normalized) || null;
+
+  // 1. Exact match by tracking_code
+  let match = local.find(
+    (r) => r.tracking_code.toUpperCase() === normalized || r.tracking_code.toUpperCase() === raw.toUpperCase()
+  );
+  if (match) return match;
+
+  // 2. Exact match by passport_number
+  match = local.find(
+    (r) => r.passport_number && r.passport_number.toUpperCase() === raw.toUpperCase()
+  );
+  if (match) return match;
+
+  // 3. Exact match by id
+  match = local.find((r) => r.id.toLowerCase() === raw.toLowerCase());
+  if (match) return match;
+
+  // 4. Substring match on tracking_code or passport_number
+  match = local.find(
+    (r) =>
+      r.tracking_code.toUpperCase().includes(raw.toUpperCase()) ||
+      (r.passport_number && r.passport_number.toUpperCase().includes(raw.toUpperCase()))
+  );
+  if (match) return match;
+
+  // 5. Digits-only match (if input has digits)
+  if (digitsOnly.length >= 2) {
+    match = local.find((r) => {
+      const recDigits = r.tracking_code.replace(/\D/g, '');
+      const passDigits = (r.passport_number || '').replace(/\D/g, '');
+      return (
+        recDigits.includes(digitsOnly) ||
+        passDigits.includes(digitsOnly) ||
+        (digitsOnly.length >= 4 && (digitsOnly.includes(recDigits) || digitsOnly.includes(passDigits)))
+      );
+    });
+    if (match) return match;
+  }
+
+  // 6. Name match
+  match = local.find((r) => {
+    const fullName = `${r.first_name} ${r.last_name}`.toUpperCase();
+    return fullName.includes(raw.toUpperCase());
+  });
+  if (match) return match;
+
+  return null;
 }
+
 
 export async function getRecordById(id: string): Promise<ApplicantRecord | null> {
   if (isSupabaseConfigured && supabase) {

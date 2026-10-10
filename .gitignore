@@ -4,4 +4,7 @@ out
 .env*.local
 .DS_Store
 *.log
+data/
+public/uploads/
+tsconfig.tsbuildinfo
 

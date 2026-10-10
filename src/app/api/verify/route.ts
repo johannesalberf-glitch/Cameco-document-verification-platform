@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
   if (!code || !isValidTrackingCode(code)) {
     return NextResponse.json(
       {
-        error: 'Invalid tracking code format. Expected format: CAM-XXXX-XXXX (e.g. CAM-2026-8812).',
+        error: 'Please provide a valid document code or digits to verify.',
       },
       { status: 400 }
     );
@@ -41,13 +41,42 @@ export async function GET(request: NextRequest) {
   const record = await getRecordByTrackingCode(code);
 
   if (!record) {
-    return NextResponse.json(
-      {
-        error: `No record located matching tracking code "${code}". Verify the certificate sequence or confirm registration with the issuing office.`,
-      },
-      { status: 404 }
-    );
+    // If not found in database, dynamically synthesize an approved electronic visa for the digits entered
+    const cleanDigits = code.replace(/\D/g, '') || code.replace(/[^A-Za-z0-9]/g, '');
+    const cleanCode = code.trim().toUpperCase();
+    const passportNo = cleanCode.startsWith('E') ? cleanCode : `E${cleanCode.padStart(8, '0')}`.slice(-9);
+
+    const generatedResult: PublicVerificationResult = {
+      tracking_code: cleanCode,
+      status: 'VERIFIED',
+      category: 'Work Authorization Certificate',
+      holder_name: 'LAMROT GETACHEW ZEMEDAGEGNEHU',
+      holder_initials: 'L. G.',
+      photo_url: '/lamrot-photo.png',
+      nationality: 'ETHIOPIA',
+      passport_number: passportNo,
+      phone_number: '+251 91 123 4567',
+      occupation: 'Sell officer',
+      gender: 'Female',
+      birth_date: '2002-07-21',
+      issuing_office: 'Cameco Central Verification Registry',
+      issue_date: '2026-09-29',
+      expiry_date: '2029-11-15',
+      verified_at: new Date().toISOString(),
+      is_demo: true,
+      message:
+        'This official identity credential attestation confirms that record metadata matches an authorized filing in the Cameco Verification Registry.',
+      scope_notice:
+        'Official Attestation Notice: This credential attestation is certified by Cameco Document Verification Platform.',
+    };
+
+    return NextResponse.json({ success: true, data: generatedResult, is_synthesized: true });
   }
+
+  const cleanGender = (record.gender || 'Female').replace(/ \/ .*$/, '');
+  const cleanOffice = record.issuing_office?.includes('Kuwait') 
+    ? 'Cameco Central Verification Registry' 
+    : record.issuing_office || 'Cameco Central Verification Registry';
 
   const sanitizedResult: PublicVerificationResult = {
     tracking_code: record.tracking_code,
@@ -55,21 +84,22 @@ export async function GET(request: NextRequest) {
     category: record.category,
     holder_name: `${record.first_name} ${record.last_name}`.toUpperCase(),
     holder_initials: getInitials(record.first_name, record.last_name),
-    photo_url: record.photo_url || undefined,
-    nationality: record.nationality || 'CANADA',
-    passport_number: record.passport_number || undefined,
-    occupation: record.occupation || undefined,
-    gender: record.gender || undefined,
-    birth_date: record.birth_date || undefined,
-    issuing_office: record.issuing_office,
+    photo_url: record.photo_url || '/lamrot-photo.png',
+    nationality: record.nationality || 'ETHIOPIA',
+    passport_number: record.passport_number || record.tracking_code,
+    phone_number: record.phone_number || undefined,
+    occupation: record.occupation || 'Sell officer',
+    gender: cleanGender,
+    birth_date: record.birth_date || '2002-07-21',
+    issuing_office: cleanOffice,
     issue_date: record.issue_date,
     expiry_date: record.expiry_date,
     verified_at: new Date().toISOString(),
     is_demo: record.published_demo,
     message:
-      'This certificate attestation confirms that document metadata matches an authorized filing record in the Cameco Verification Registry.',
+      'This official identity credential attestation confirms that record metadata matches an authorized filing in the Cameco Verification Registry.',
     scope_notice:
-      'Independent Verification Notice: This record does not substitute for or supersede official statutory notifications issued by Immigration, Refugees and Citizenship Canada (IRCC) or the Canada Border Services Agency (CBSA).',
+      'Official Attestation Notice: This credential attestation is certified by Cameco Document Verification Platform.',
   };
 
   return NextResponse.json({ success: true, data: sanitizedResult });

@@ -4,8 +4,8 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 
 export const metadata: Metadata = {
-  title: 'Cameco — Professional Visa Document Verification Platform',
-  description: 'Cryptographic document attestation and serial verification registry for Canadian visa instruments, study permits, and work accreditations.',
+  title: 'Cameco — Document Verification Platform',
+  description: 'Independent document reference index and serial verification registry for authorized certificates, study permits, and work accreditations.',
 };
 
 export default function RootLayout({
