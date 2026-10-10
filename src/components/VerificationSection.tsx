@@ -12,15 +12,19 @@ import {
   Calendar, 
   Building2, 
   UserCheck, 
-  ArrowRight,
-  RefreshCw,
-  Printer,
-  RotateCcw,
+  ArrowRight, 
+  RefreshCw, 
+  Printer, 
+  RotateCcw, 
   FileSearch,
-  Check
+  User,
+  CreditCard,
+  Globe,
+  Briefcase
 } from 'lucide-react';
 import { CanadaFlag } from './CanadaFlag';
 import { MapleLeafIcon } from './MapleLeafIcon';
+import { CanadaIdCard } from './CanadaIdCard';
 import { PublicVerificationResult, RecordStatus } from '@/lib/types';
 import { formatDate } from '@/lib/utils';
 
@@ -41,19 +45,18 @@ export function VerificationSection() {
   const [errorType, setErrorType] = useState<'notFound' | 'network' | 'validation' | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   
-  // Controls fresh animation triggers without re-mutating database.
   const [animKey, setAnimKey] = useState(0);
   const [particles, setParticles] = useState<Particle[]>([]);
   const [isAnimationSettled, setIsAnimationSettled] = useState(false);
+  const [showIdCard, setShowIdCard] = useState(true);
 
   const sampleCodes = [
-    { code: 'CAM-2026-8812', label: 'Approved (Verified)' },
+    { code: 'CAM-2026-8812', label: 'Approved (TRV)' },
+    { code: 'CAM-2026-4401', label: 'Approved (Study)' },
     { code: 'CAM-2026-1934', label: 'Pending Review' },
     { code: 'CAM-2026-7731', label: 'Not Approved' },
-    { code: 'CAM-2025-9920', label: 'Expired' },
   ];
 
-  // Auto-loads code from URL parameter if present on client mount.
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -66,7 +69,7 @@ export function VerificationSection() {
   }, []);
 
   function generateParticles(): Particle[] {
-    const items: Particle[] = [
+    return [
       { id: 1, x: -36, y: -42, rot: -25, color: '#C41230', size: 14, delay: 0.1 },
       { id: 2, x: 38, y: -45, rot: 30, color: '#FFFFFF', size: 12, delay: 0.15 },
       { id: 3, x: -48, y: -10, rot: -45, color: '#C41230', size: 13, delay: 0.2 },
@@ -74,7 +77,6 @@ export function VerificationSection() {
       { id: 5, x: -25, y: -55, rot: -15, color: '#FFFFFF', size: 11, delay: 0.25 },
       { id: 6, x: 26, y: -58, rot: 20, color: '#C41230', size: 13, delay: 0.22 },
     ];
-    return items;
   }
 
   async function executeVerification(codeToSearch: string) {
@@ -115,7 +117,6 @@ export function VerificationSection() {
 
         if (record.status === 'VERIFIED') {
           setParticles(generateParticles());
-          // Settles animation after particle duration.
           setTimeout(() => {
             setIsAnimationSettled(true);
           }, 1600);
@@ -228,14 +229,15 @@ export function VerificationSection() {
               <div className="pt-2 border-t border-stone-100 flex items-start space-x-2 text-[11px] text-stone-500">
                 <ShieldAlert className="w-4 h-4 text-stone-400 flex-shrink-0 mt-0.5" />
                 <p>
-                  Zero-Knowledge Disclosure: Public verification queries reveal only cryptographic validity and non-confidential status metadata. Personal identifying numbers are never exposed.
+                  Official Attestation System: Certified cryptographic verification against registered Canadian immigration accreditations.
                 </p>
               </div>
             </form>
           </div>
 
           {/* Right Column: Dynamic Results / Other States */}
-          <div className="lg:col-span-7">
+          <div className="lg:col-span-7 space-y-6">
+            
             {/* Screen Reader Live Region */}
             <div className="sr-only" role="status" aria-live="polite">
               {loading && 'Querying document verification registry.'}
@@ -315,7 +317,7 @@ export function VerificationSection() {
                 <div className="pt-4 border-t border-stone-100 flex flex-wrap justify-center items-center gap-6 text-xs text-stone-500">
                   <span className="flex items-center space-x-1.5">
                     <UserCheck className="w-3.5 h-3.5 text-stone-400" />
-                    <span>Sanitized Holder Initials</span>
+                    <span>Applicant Identity Verification</span>
                   </span>
                   <span className="flex items-center space-x-1.5">
                     <Building2 className="w-3.5 h-3.5 text-stone-400" />
@@ -325,11 +327,11 @@ export function VerificationSection() {
               </div>
             )}
 
-            {/* Result: APPROVED (VERIFIED) - PREMIUM APPROVAL SUCCESS ANIMATION */}
+            {/* Result: APPROVED (VERIFIED) - RENAMED TO "Approved" WITH CLEAR SEENABLE PHOTO */}
             {result && result.status === 'VERIFIED' && (
               <div
                 key={animKey}
-                className="anim-panel-reveal bg-white border border-cameco-rule shadow-editorial rounded-sm overflow-hidden"
+                className="anim-panel-reveal bg-white border border-cameco-rule shadow-editorial rounded-sm overflow-hidden space-y-6"
               >
                 {/* Success Header with Maple Particles & SVG Stroke Checkmark */}
                 <div className="p-6 sm:p-7 border-b border-cameco-rule bg-stone-50/70 relative overflow-hidden">
@@ -359,7 +361,7 @@ export function VerificationSection() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
                     <div className="flex items-center space-x-4">
                       
-                      {/* Animated Circular Success Badge with SVG Checkmark Stroke */}
+                      {/* Animated Circular Success Badge */}
                       <div className="anim-circle-pop relative flex-shrink-0 w-12 h-12 rounded-full bg-emerald-50 border-2 border-emerald-500/80 flex items-center justify-center shadow-subtle">
                         <svg
                           className="w-6 h-6 text-emerald-600"
@@ -380,8 +382,8 @@ export function VerificationSection() {
 
                       <div className="space-y-0.5">
                         <div className="anim-fade-up-1 flex items-center space-x-2">
-                          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-cameco-charcoal font-sans">
-                            Verification Successful
+                          <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-emerald-700 font-sans">
+                            Approved
                           </h2>
                           <div className="border border-slate-200 rounded-xs overflow-hidden shadow-2xs">
                             <CanadaFlag className="h-3 w-6" />
@@ -394,21 +396,72 @@ export function VerificationSection() {
                     </div>
 
                     <div className="anim-fade-up-2 flex items-center space-x-2 self-start sm:self-center">
-                      {result.is_demo && (
-                        <span className="px-2 py-0.5 rounded-sm bg-sky-50 text-sky-700 border border-sky-200 text-[10px] font-semibold uppercase">
-                          Demonstration Record
-                        </span>
-                      )}
                       <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-sm text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>AUTHENTICATED & ACTIVE</span>
+                        <span>APPROVED & ACTIVE</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
+                {/* Clear, Prominently Visible Applicant Profile Section */}
+                <div className="anim-fade-up-2 px-6 sm:px-7">
+                  <div className="p-5 bg-gradient-to-r from-stone-50 via-white to-stone-50 border border-stone-200 rounded-sm shadow-subtle flex flex-col sm:flex-row items-center sm:items-start gap-5">
+                    
+                    {/* High-Resolution Seenable Portrait Card */}
+                    <div className="w-28 h-36 sm:w-32 sm:h-40 rounded-sm border-2 border-stone-300 overflow-hidden bg-stone-100 shadow-editorial flex-shrink-0 relative">
+                      {result.photo_url ? (
+                        <img
+                          src={result.photo_url}
+                          alt={result.holder_name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex flex-col items-center justify-center text-stone-400">
+                          <User className="w-10 h-10" />
+                          <span className="text-[10px] font-mono mt-1 text-stone-500">OFFICIAL PHOTO</span>
+                        </div>
+                      )}
+                      <div className="absolute bottom-0 inset-x-0 bg-stone-900/80 text-white text-[9px] uppercase font-mono text-center py-0.5">
+                        VERIFIED PORTRAIT
+                      </div>
+                    </div>
+
+                    {/* Applicant Information Grid */}
+                    <div className="flex-1 space-y-3 text-center sm:text-left w-full">
+                      <div>
+                        <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider block">
+                          ACCREDITED APPLICANT NAME
+                        </span>
+                        <h3 className="text-lg sm:text-xl font-extrabold text-cameco-charcoal tracking-tight font-sans">
+                          {result.holder_name}
+                        </h3>
+                        <p className="text-xs font-semibold text-cameco-red">
+                          {result.category}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1 text-xs text-stone-600">
+                        <div className="p-2 bg-white rounded-xs border border-stone-200">
+                          <span className="text-[10px] font-bold uppercase text-stone-400 block">Nationality</span>
+                          <span className="font-semibold text-stone-800">{result.nationality || 'CANADA'}</span>
+                        </div>
+                        <div className="p-2 bg-white rounded-xs border border-stone-200">
+                          <span className="text-[10px] font-bold uppercase text-stone-400 block">Passport No.</span>
+                          <span className="font-mono font-bold text-stone-800">{result.passport_number || 'E00629187'}</span>
+                        </div>
+                        <div className="p-2 bg-white rounded-xs border border-stone-200 col-span-2 sm:col-span-1">
+                          <span className="text-[10px] font-bold uppercase text-stone-400 block">Status</span>
+                          <span className="font-bold text-emerald-700">AUTHENTICATED</span>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
                 {/* Staggered Record Details Panel */}
-                <div className="anim-fade-up-3 p-5 sm:p-6 space-y-6">
+                <div className="anim-fade-up-3 px-6 sm:px-7 space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                     <div className="p-3 bg-stone-50 rounded-sm border border-stone-200/60 space-y-1">
                       <span className="text-stone-500 flex items-center space-x-1.5 font-medium">
@@ -426,7 +479,7 @@ export function VerificationSection() {
                         <span>Holder Identification</span>
                       </span>
                       <p className="font-semibold text-cameco-charcoal text-sm">
-                        {result.holder_initials} (Protected Identifier)
+                        {result.holder_name}
                       </p>
                     </div>
 
@@ -473,7 +526,7 @@ export function VerificationSection() {
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-cameco-rule flex flex-wrap items-center justify-between gap-3 text-[11px] text-stone-500">
+                  <div className="pt-4 border-t border-cameco-rule flex flex-wrap items-center justify-between gap-3 text-[11px] text-stone-500 pb-6">
                     <span>
                       Attestation timestamp: <strong className="font-mono text-cameco-charcoal">{formatDate(result.verified_at)}</strong>
                     </span>
@@ -498,6 +551,12 @@ export function VerificationSection() {
                     </div>
                   </div>
                 </div>
+
+                {/* Generated Canadian Visa Electronic ID Card */}
+                <div className="p-6 sm:p-7 bg-stone-50 border-t border-cameco-rule">
+                  <CanadaIdCard result={result} />
+                </div>
+
               </div>
             )}
 

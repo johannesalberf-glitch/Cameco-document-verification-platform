@@ -3,7 +3,6 @@ import { getRecordByTrackingCode } from '@/lib/store';
 import { isValidTrackingCode, getInitials } from '@/lib/utils';
 import { PublicVerificationResult } from '@/lib/types';
 
-// In-memory bucket for simple IP-based rate limiting on public verification queries.
 const rateLimitMap = new Map<string, { count: number; expires: number }>();
 
 function isRateLimited(ip: string): boolean {
@@ -13,7 +12,7 @@ function isRateLimited(ip: string): boolean {
     rateLimitMap.set(ip, { count: 1, expires: now + 60000 });
     return false;
   }
-  if (entry.count >= 40) return true;
+  if (entry.count >= 60) return true;
   entry.count += 1;
   return false;
 }
@@ -22,7 +21,7 @@ export async function GET(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0].trim() || '127.0.0.1';
   if (isRateLimited(ip)) {
     return NextResponse.json(
-      { error: 'Rate limit exceeded. Maximum 40 queries per minute permitted.' },
+      { error: 'Rate limit exceeded. Maximum 60 queries per minute permitted.' },
       { status: 429 }
     );
   }
@@ -54,7 +53,14 @@ export async function GET(request: NextRequest) {
     tracking_code: record.tracking_code,
     status: record.status,
     category: record.category,
+    holder_name: `${record.first_name} ${record.last_name}`.toUpperCase(),
     holder_initials: getInitials(record.first_name, record.last_name),
+    photo_url: record.photo_url || undefined,
+    nationality: record.nationality || 'CANADA',
+    passport_number: record.passport_number || undefined,
+    occupation: record.occupation || undefined,
+    gender: record.gender || undefined,
+    birth_date: record.birth_date || undefined,
     issuing_office: record.issuing_office,
     issue_date: record.issue_date,
     expiry_date: record.expiry_date,

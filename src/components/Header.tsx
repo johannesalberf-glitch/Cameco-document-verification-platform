@@ -2,19 +2,10 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { CanadaFlag } from './CanadaFlag';
-import { ShieldCheck, FileSearch, Users, Lock } from 'lucide-react';
+import { FileSearch } from 'lucide-react';
 
 export function Header() {
-  const pathname = usePathname();
-
-  const navItems = [
-    { href: '/', label: 'Document Verification', icon: FileSearch },
-    { href: '/gallery', label: 'Sample Registry', icon: Users },
-    { href: '/admin', label: 'Portal Administration', icon: Lock },
-  ];
-
   return (
     <header className="border-b border-cameco-rule bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -38,25 +29,14 @@ export function Header() {
             </div>
           </Link>
 
-          <nav className="flex items-center space-x-1 sm:space-x-3">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href;
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center space-x-2 px-3 py-2 text-xs sm:text-sm font-medium rounded-sm transition-colors ${
-                    isActive
-                      ? 'text-cameco-red bg-cameco-red-surface border-b-2 border-cameco-red font-semibold'
-                      : 'text-cameco-charcoal-muted hover:text-cameco-charcoal hover:bg-stone-50'
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span className="hidden sm:inline">{item.label}</span>
-                </Link>
-              );
-            })}
+          <nav className="flex items-center space-x-2">
+            <Link
+              href="/"
+              className="flex items-center space-x-2 px-3 py-2 text-xs sm:text-sm font-medium rounded-sm text-cameco-red bg-cameco-red-surface border-b-2 border-cameco-red font-semibold transition-colors"
+            >
+              <FileSearch className="w-4 h-4" />
+              <span>Document Verification</span>
+            </Link>
           </nav>
         </div>
       </div>

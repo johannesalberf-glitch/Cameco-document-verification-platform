@@ -17,9 +17,14 @@ const SEED_RECORDS: ApplicantRecord[] = [
     status: 'VERIFIED',
     issue_date: '2026-03-15',
     expiry_date: '2028-03-15',
-    photo_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80',
+    photo_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&auto=format&fit=crop&q=80',
     issuing_office: 'Ottawa Central Verification Registry',
     published_demo: true,
+    nationality: 'UNITED KINGDOM',
+    passport_number: 'GB8821904',
+    occupation: 'Senior Geoscientist',
+    gender: 'Female',
+    birth_date: '1992-05-14',
     notes: 'Biometrics matched; employer compliance verified under Section 203.',
     created_at: '2026-03-15T09:30:00Z',
     updated_at: '2026-03-15T09:30:00Z',
@@ -33,9 +38,14 @@ const SEED_RECORDS: ApplicantRecord[] = [
     status: 'VERIFIED',
     issue_date: '2026-01-10',
     expiry_date: '2027-08-31',
-    photo_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
+    photo_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=80',
     issuing_office: 'Vancouver Regional Intake Unit',
     published_demo: true,
+    nationality: 'SINGAPORE',
+    passport_number: 'E49102847',
+    occupation: 'Postgraduate Researcher',
+    gender: 'Male',
+    birth_date: '1998-11-20',
     notes: 'Designated Learning Institution (DLI) enrollment attested.',
     created_at: '2026-01-10T14:15:00Z',
     updated_at: '2026-01-10T14:15:00Z',
@@ -49,9 +59,14 @@ const SEED_RECORDS: ApplicantRecord[] = [
     status: 'PENDING_REVIEW',
     issue_date: '2026-09-01',
     expiry_date: '2027-09-01',
-    photo_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
+    photo_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80',
     issuing_office: 'Toronto Operational Gateway',
     published_demo: true,
+    nationality: 'NIGERIA',
+    passport_number: 'A09418274',
+    occupation: 'Process Safety Engineer',
+    gender: 'Female',
+    birth_date: '1995-03-08',
     notes: 'Labour market confirmation under secondary validation.',
     created_at: '2026-09-01T11:00:00Z',
     updated_at: '2026-10-02T16:20:00Z',
@@ -65,9 +80,14 @@ const SEED_RECORDS: ApplicantRecord[] = [
     status: 'EXPIRED',
     issue_date: '2024-08-15',
     expiry_date: '2025-08-15',
-    photo_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=80',
+    photo_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&auto=format&fit=crop&q=80',
     issuing_office: 'Calgary Field Examination Desk',
     published_demo: true,
+    nationality: 'AUSTRALIA',
+    passport_number: 'N19284719',
+    occupation: 'Field Operations Consultant',
+    gender: 'Male',
+    birth_date: '1989-12-03',
     notes: 'Authorization expired. Re-application required for extension.',
     created_at: '2024-08-15T08:00:00Z',
     updated_at: '2025-08-16T00:01:00Z',
@@ -81,9 +101,14 @@ const SEED_RECORDS: ApplicantRecord[] = [
     status: 'REJECTED',
     issue_date: '2026-02-04',
     expiry_date: '2026-02-04',
-    photo_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop&q=80',
+    photo_url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&auto=format&fit=crop&q=80',
     issuing_office: 'Montreal Documentation Hub',
     published_demo: false,
+    nationality: 'UKRAINE',
+    passport_number: 'PU9102831',
+    occupation: 'Statistical Analyst',
+    gender: 'Female',
+    birth_date: '1994-08-27',
     notes: 'Discrepancy in credential evaluation certificate serial.',
     created_at: '2026-02-04T10:45:00Z',
     updated_at: '2026-02-08T13:10:00Z',
@@ -97,9 +122,14 @@ const SEED_RECORDS: ApplicantRecord[] = [
     status: 'VERIFIED',
     issue_date: '2026-04-18',
     expiry_date: '2028-04-18',
-    photo_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&auto=format&fit=crop&q=80',
+    photo_url: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=500&auto=format&fit=crop&q=80',
     issuing_office: 'Halifax Atlantic Pilot Bureau',
     published_demo: true,
+    nationality: 'BRAZIL',
+    passport_number: 'BR4820193',
+    occupation: 'Software Systems Architect',
+    gender: 'Male',
+    birth_date: '1991-07-19',
     notes: 'Nova Scotia provincial nominee confirmation active.',
     created_at: '2026-04-18T15:00:00Z',
     updated_at: '2026-04-18T15:00:00Z',
@@ -137,7 +167,24 @@ function readLocalRecords(): ApplicantRecord[] {
   try {
     if (fs.existsSync(BACKUP_FILE)) {
       const data = fs.readFileSync(BACKUP_FILE, 'utf8');
-      return JSON.parse(data);
+      const parsed: ApplicantRecord[] = JSON.parse(data);
+      // Merge with seed records so missing fields/photos get enriched
+      return parsed.map((item) => {
+        const seed = SEED_RECORDS.find((s) => s.id === item.id || s.tracking_code === item.tracking_code);
+        if (seed) {
+          return {
+            ...seed,
+            ...item,
+            photo_url: item.photo_url || seed.photo_url,
+            nationality: item.nationality || seed.nationality,
+            passport_number: item.passport_number || seed.passport_number,
+            occupation: item.occupation || seed.occupation,
+            gender: item.gender || seed.gender,
+            birth_date: item.birth_date || seed.birth_date,
+          };
+        }
+        return item;
+      });
     }
   } catch {
     // Falls back to seed records on read error.
@@ -188,6 +235,21 @@ export async function getRecordByTrackingCode(code: string): Promise<ApplicantRe
 
   const local = readLocalRecords();
   return local.find((r) => r.tracking_code === normalized) || null;
+}
+
+export async function getRecordById(id: string): Promise<ApplicantRecord | null> {
+  if (isSupabaseConfigured && supabase) {
+    const { data, error } = await supabase
+      .from('records')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (!error && data) return data as ApplicantRecord;
+  }
+
+  const local = readLocalRecords();
+  return local.find((r) => r.id === id) || null;
 }
 
 export async function listRecords(options: {
@@ -425,21 +487,5 @@ export async function addAuditLog(
   writeLocalAudit(current.slice(0, 100));
 
   return entry;
-}
-
-
-export async function getRecordById(id: string): Promise<ApplicantRecord | null> {
-  if (isSupabaseConfigured && supabase) {
-    const { data, error } = await supabase
-      .from('records')
-      .select('*')
-      .eq('id', id)
-      .maybeSingle();
-
-    if (!error && data) return data as ApplicantRecord;
-  }
-
-  const local = readLocalRecords();
-  return local.find((r) => r.id === id) || null;
 }
 

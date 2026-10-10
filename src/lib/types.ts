@@ -26,6 +26,11 @@ export interface ApplicantRecord {
   issuing_office: string;
   published_demo: boolean;
   notes?: string;
+  nationality?: string;
+  passport_number?: string;
+  occupation?: string;
+  gender?: string;
+  birth_date?: string;
   created_at: string;
   updated_at: string;
 }
@@ -34,7 +39,14 @@ export interface PublicVerificationResult {
   tracking_code: string;
   status: RecordStatus;
   category: RecordCategory;
+  holder_name: string;
   holder_initials: string;
+  photo_url?: string;
+  nationality?: string;
+  passport_number?: string;
+  occupation?: string;
+  gender?: string;
+  birth_date?: string;
   issuing_office: string;
   issue_date: string;
   expiry_date: string;
